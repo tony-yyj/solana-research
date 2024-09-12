@@ -5,6 +5,7 @@ import {signOrderlyKey} from "@/utils/walletSign.util";
 import {getOrderlyKeyDataBody} from "@/utils/signatureBody.util";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {encodeBase58} from "ethers";
+import {Button} from "@/components/base/button";
 
 export default function OrderlyKeyButton(){
     const { publicKey, signMessage } = useWallet();
@@ -48,7 +49,7 @@ export default function OrderlyKeyButton(){
         })
 
         const userAddress =  encodeBase58(publicKey.toBytes());
-        httpRequestUtil.post(`/v1/orderlyKey`, orderlyKeyBody).then(res => {
+        httpRequestUtil.post(`/v1/orderly_key`, orderlyKeyBody).then(res => {
             console.log('-- set orderly key res', res);
             if (res.success) {
                window.localStorage.setItem(`SOL:${userAddress}`, orderlyKey);
@@ -59,9 +60,9 @@ export default function OrderlyKeyButton(){
     return (
         <div>
             set orderly key
-            <button onClick={onSetOrderlyKey}>
+            <Button onClick={onSetOrderlyKey}>
                 orderly key
-            </button>
+            </Button>
         </div>
     )
 }
