@@ -3,6 +3,7 @@ import InitSolana from "@/app/initSolana";
 import WalletBalance from "@/app/walletBalance";
 import {WalletDisconnectButton, WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import OrderlyKeyButton from "@/components/OrderlyKeyButton";
+import RegisterAccount from "@/components/registerAccount";
 
 export default function Home() {
     return (
@@ -18,6 +19,9 @@ export default function Home() {
                     <WalletBalance/>
                 </div>
                 <div className='w-full h-[1px] bg-black'/>
+                <div>
+                    <RegisterAccount/>
+                </div>
                 <div>
                     <OrderlyKeyButton/>
                 </div>

@@ -14,12 +14,14 @@
     "@solana/wallet-adapter-react-ui": "0.9.35",
     "@solana/wallet-adapter-wallets": "0.19.32",
     "@solana/web3.js": "1.95.3",
+    "axios": "1.7.7",
     "bignumber.js": "9.1.2",
     "ethereum-cryptography": "2.2.1",
     "ethers": "6.13.2",
     "next": "14.2.9",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "tailwind-variants": "0.2.1"
   },
   "devDependencies": {
     "@types/node": "^20",
