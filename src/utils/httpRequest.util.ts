@@ -22,7 +22,7 @@ instance.interceptors.response.use(
 )
 
 function get<T>(url: string, params?: object):Promise<IResponse<T>> {
-    return instance.get(url, params);
+    return instance.get(url,{params});
 }
 
 function post<T>(url: string, data?: object): Promise<IResponse<T>> {

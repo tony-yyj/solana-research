@@ -59,7 +59,10 @@ export default function OrderlyKeyButton(){
 
     return (
         <div>
-            set orderly key
+            <h2>
+
+                2. set orderly key
+            </h2>
             <Button onClick={onSetOrderlyKey}>
                 orderly key
             </Button>
