@@ -3,10 +3,12 @@ import httpRequestUtil from "@/utils/httpRequest.util";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {getRegistrationDataBody} from "@/utils/signatureBody.util";
 import {signRegisterData} from "@/utils/walletSign.util";
+import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 
 
 export default function RegisterAccount() {
-    const {signMessage, publicKey} = useWallet();
+    const {signMessage} = useWallet();
+    const {userAddress} =useWalletAdapterContext();
 
     const getRegistrationNonce = async () => {
         const res = await httpRequestUtil.get<{ registration_nonce: number }>(`/v1/registration_nonce`);
@@ -17,7 +19,7 @@ export default function RegisterAccount() {
     }
     const onRegister = async () => {
         if (!signMessage) return;
-        if (!publicKey) return;
+        if (!userAddress) return;
         try {
 
             const nonce = await getRegistrationNonce()
@@ -35,7 +37,7 @@ export default function RegisterAccount() {
             if (!signature) return;
 
             const accountRegistrationBody =getRegistrationDataBody({
-                publicKey,
+                userAddress,
                 signature,
                 timestamp,
                 brokerId: 'woofi_pro',

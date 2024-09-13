@@ -51,7 +51,6 @@ export async function signOrderlyKey(
         expiration,
     }: {
         brokerId: string;
-        publicKey: PublicKey;
         orderlyKey: string;
         chainId: bigint;
         signMessage: ((message: Uint8Array) => Promise<Uint8Array>);

@@ -6,6 +6,7 @@ import OrderlyKeyButton from "@/components/OrderlyKeyButton";
 import RegisterAccount from "@/components/registerAccount";
 import CheckAccount from "@/components/checkAccount";
 import CheckOrderlyKey from "@/components/checkOrderlyKey";
+import UserBalance from "@/components/userBalance";
 
 export default function Home() {
     return (
@@ -16,19 +17,24 @@ export default function Home() {
                     <WalletMultiButton/>
                     <WalletDisconnectButton/>
                 </div>
-                <div className='w-full h-[1px] bg-black'/>
+                <div className='w-full h-[1px] my-3 bg-black'/>
                 <div>
                     <WalletBalance/>
                 </div>
-                <div className='w-full h-[1px] bg-black'/>
+                <div className='w-full h-[1px] my-3 bg-black'/>
                 <div className='flex gap-5'>
                     <CheckAccount/>
                     <CheckOrderlyKey/>
                 </div>
+                <div className='w-full h-[1px] my-3 bg-black'/>
                 <div className='flex gap-5'>
 
                     <RegisterAccount/>
                     <OrderlyKeyButton/>
+                </div>
+                <div className='w-full h-[1px] my-3 bg-black'/>
+                <div>
+                    <UserBalance/>
                 </div>
             </div>
         </InitSolana>

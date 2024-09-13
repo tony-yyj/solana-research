@@ -36,15 +36,14 @@ export function getRegistrationDataBody(
         registrationNonce,
         signature,
         timestamp,
-        publicKey,
-
+        userAddress,
     }: {
         brokerId: string;
         chainId: bigint;
         registrationNonce: bigint;
         signature: string;
         timestamp: bigint;
-        publicKey: PublicKey;
+        userAddress: string;
     }
 ) {
     const body: AccountRegistrationBody = {
@@ -56,31 +55,31 @@ export function getRegistrationDataBody(
             chainType: 'SOL',
         },
         signature: signature,
-        userAddress: encodeBase58(publicKey.toBytes()),
+        userAddress,
     };
     return body;
 
 }
 
 
-export function getOrderlyKeyDataBody (
+export function getOrderlyKeyDataBody(
     {
+        userAddress,
         brokerId,
         chainId,
         signature,
         timestamp,
-        publicKey,
         orderlyKey,
         scope,
         expiration,
 
     }: {
+        userAddress: string;
         brokerId: string;
         orderlyKey: string;
         chainId: bigint;
         signature: string;
         timestamp: bigint;
-        publicKey: PublicKey;
         scope: string;
         expiration: bigint;
     }) {
@@ -95,7 +94,7 @@ export function getOrderlyKeyDataBody (
             chainType: 'SOL',
         },
         signature: signature,
-        userAddress: encodeBase58(publicKey.toBytes()),
+        userAddress,
     };
     return body;
 }

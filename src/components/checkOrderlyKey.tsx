@@ -4,10 +4,10 @@ import {useEffect, useMemo, useState} from "react";
 import {encodeBase58} from "ethers";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {getAccountId} from "@/utils/common.utilt";
+import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
 
 export default function CheckOrderlyKey() {
     const {publicKey} = useWallet();
-    const [orderlyKey, setorderlyKey] = useState<string | undefined>();
     const [keyState, setKeyState] = useState<{
         expiration: string;
         key_status: string;
@@ -22,24 +22,19 @@ export default function CheckOrderlyKey() {
 
     }, [publicKey]);
 
-    useEffect(() => {
+    const onCheckOrderlyKey = () => {
         if (!userAddress) {
             return;
         }
-        console.log('-- useraddress', userAddress, `SOL:${userAddress}`);
-        const key = window.localStorage.getItem(`SOL:${userAddress}`);
-        if (!key) {
-            return;
-        }
-        setorderlyKey(key);
+        const secretKey = window.localStorage.getItem(`SOL:${userAddress}`);
+        if (!secretKey) return;
+        console.log('-- secretKey', secretKey);
 
-    }, [userAddress])
+        const {orderlyKey} = recoverOrderlyKeyPair(secretKey);
+        console.log('--orderlyKey', orderlyKey);
 
+        if (!orderlyKey) return;
 
-    const onCheckAccount = () => {
-        if (!userAddress) {
-            return;
-        }
         const accountId = getAccountId(userAddress, 'woofi_pro')
 
         httpRequestUtil.get<{
@@ -63,7 +58,7 @@ export default function CheckOrderlyKey() {
     return (
         <div className='border border-black rounded-md px-3 py-2'>
             <h2>check orderlyKey status</h2>
-            <Button onClick={onCheckAccount}>check orderlyKey</Button>
+            <Button onClick={onCheckOrderlyKey}>check orderlyKey</Button>
             {
                 keyState &&
 

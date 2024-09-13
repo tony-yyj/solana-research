@@ -4,19 +4,21 @@ import {useWallet} from "@solana/wallet-adapter-react";
 import {signOrderlyKey} from "@/utils/walletSign.util";
 import {getOrderlyKeyDataBody} from "@/utils/signatureBody.util";
 import httpRequestUtil from "@/utils/httpRequest.util";
-import {encodeBase58} from "ethers";
 import {Button} from "@/components/base/button";
+import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 
 export default function OrderlyKeyButton(){
-    const { publicKey, signMessage } = useWallet();
+    const { signMessage } = useWallet();
+
+    const {userAddress} = useWalletAdapterContext();
 
 
     const onSetOrderlyKey = async () => {
-        if (!publicKey) return;
+        if (!userAddress) return;
         if (!signMessage) return;
         const timestamp = BigInt(Date.now());
-        const orderlyKey = generateOrderlyKey();
-        if (!orderlyKey) return;
+        const orderlyKeyPair = generateOrderlyKey();
+        if (!orderlyKeyPair) return;
         const scope = 'read';
         const expiration = timestamp + BigInt(3600000);
 
@@ -26,10 +28,9 @@ export default function OrderlyKeyButton(){
 
         const signature = await signOrderlyKey({
             signMessage,
-            orderlyKey,
+            orderlyKey: orderlyKeyPair.publicKey,
             timestamp,
             scope,
-            publicKey,
             brokerId,
             chainId,
             expiration,
@@ -38,21 +39,20 @@ export default function OrderlyKeyButton(){
         if (!signature) return;
 
         const orderlyKeyBody = getOrderlyKeyDataBody({
+            userAddress,
             brokerId,
             chainId,
             signature,
             timestamp,
-            publicKey,
-            orderlyKey,
+            orderlyKey: orderlyKeyPair.publicKey,
             scope,
             expiration,
         })
 
-        const userAddress =  encodeBase58(publicKey.toBytes());
         httpRequestUtil.post(`/v1/orderly_key`, orderlyKeyBody).then(res => {
             console.log('-- set orderly key res', res);
             if (res.success) {
-               window.localStorage.setItem(`SOL:${userAddress}`, orderlyKey);
+               window.localStorage.setItem(`SOL:${userAddress}`,orderlyKeyPair.secretKey);
             }
         })
     }
