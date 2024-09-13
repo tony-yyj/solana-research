@@ -86,3 +86,39 @@ export async function signOrderlyKey(
 
     }
 }
+
+export async function signSettlePnlData(
+    {
+        brokerId,
+        chainId,
+        signMessage,
+        timestamp,
+        settleNonce,
+    }: {
+        brokerId: string;
+        chainId: bigint;
+        signMessage: ((message: Uint8Array) => Promise<Uint8Array>);
+        timestamp: bigint;
+        settleNonce: bigint;
+    }
+){
+    try{
+        const brokerIdHash = solidityPackedKeccak256(['string'], [brokerId]);
+
+        const abicoder = AbiCoder.defaultAbiCoder();
+        const msgToSign = keccak256(
+            hexToBytes(
+                abicoder.encode(
+                    ['bytes32', 'uint256', 'uint64', 'uint64'],
+                    [brokerIdHash, chainId, settleNonce, timestamp]
+                )
+            )
+        );
+        const msgToSignHex = bytesToHex(msgToSign);
+        const msgToSignTextEncoded: Uint8Array = new TextEncoder().encode(msgToSignHex);
+        const signature = '0x' + bytesToHex(await signMessage(msgToSignTextEncoded));
+        return signature;
+    } catch (e) {
+        console.log('-- error: sign settle pnl data error', e);
+    }
+}

@@ -1,19 +1,37 @@
-import React, {ReactNode, createContext, useContext, useMemo} from 'react';
+import React, {ReactNode, createContext, useContext, useMemo, useState, useEffect} from 'react';
 import {useWallet} from "@solana/wallet-adapter-react";
 import {encodeBase58} from "ethers";
 
 export interface WalletAdapterValue {
     userAddress: string | undefined;
+    secretKey: string | undefined;
+    setSecretKey: (secretKey: string) => void;
+    chainId: bigint;
+    brokerId: string;
 }
 
 const defaultContextValue: WalletAdapterValue = {
     userAddress: undefined,
+    secretKey: undefined,
+    setSecretKey: () => {},
+    chainId: BigInt(920920),
+    brokerId: 'woofi_pro',
+
+
 };
 
 const WalletAdapterContext = createContext<WalletAdapterValue>(defaultContextValue);
 
 export const WalletAdapterContextProvider = ({children}: { children: ReactNode }) => {
     const {publicKey} = useWallet();
+    const [secretKey, setSecretKey] = useState<string|undefined>();
+    const chainId = useMemo(() => {
+       return BigInt(920920);
+    }, [])
+    const brokerId = useMemo(() => {
+        return 'woofi_pro';
+
+    }, [])
 
     const userAddress = useMemo(() => {
         if (!publicKey) {
@@ -23,12 +41,34 @@ export const WalletAdapterContextProvider = ({children}: { children: ReactNode }
 
     }, [publicKey]);
 
+    useEffect(() => {
+        if (!userAddress) {
+            return;
+        }
+        const key = window.localStorage.getItem(`SOL:${userAddress}`);
+        if (!key) {
+           return;
+        }
+        setSecretKey(key);
+
+
+    }, [userAddress]);
+
+
     const value = useMemo(
         () => ({
             userAddress,
+            setSecretKey,
+            secretKey,
+            chainId,
+            brokerId,
         }),
         [
             userAddress,
+            setSecretKey,
+            secretKey,
+            chainId,
+            brokerId,
         ],
     );
 

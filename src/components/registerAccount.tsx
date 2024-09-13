@@ -8,7 +8,7 @@ import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 
 export default function RegisterAccount() {
     const {signMessage} = useWallet();
-    const {userAddress} =useWalletAdapterContext();
+    const {userAddress, brokerId, chainId} =useWalletAdapterContext();
 
     const getRegistrationNonce = async () => {
         const res = await httpRequestUtil.get<{ registration_nonce: number }>(`/v1/registration_nonce`);
@@ -29,8 +29,8 @@ export default function RegisterAccount() {
             const signature = await signRegisterData({
                 signMessage,
                 timestamp,
-                brokerId: 'woofi_pro',
-                chainId: BigInt(920920),
+                brokerId,
+                chainId,
                 registrationNonce: BigInt(nonce),
             })
             console.log('-- signature', signature)
@@ -40,8 +40,8 @@ export default function RegisterAccount() {
                 userAddress,
                 signature,
                 timestamp,
-                brokerId: 'woofi_pro',
-                chainId: BigInt(920920),
+                brokerId,
+                chainId,
                 registrationNonce: BigInt(nonce),
 
             });

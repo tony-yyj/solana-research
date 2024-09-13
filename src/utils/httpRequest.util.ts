@@ -30,12 +30,8 @@ function get<T>(url: string, params?: object, config?: AxiosRequestConfig):Promi
     return instance.get(url,{params, ...config} );
 }
 
-function post<T>(url: string, data?: object): Promise<IResponse<T>> {
-    return instance.post(url, data, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+function post<T>(url: string, data?: object, config?: AxiosRequestConfig): Promise<IResponse<T>> {
+    return instance.post(url, data, {...config});
 }
 
 const httpRequest = {

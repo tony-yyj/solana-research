@@ -1,32 +1,24 @@
 import {Button} from "@/components/base/button";
-import {useWallet} from "@solana/wallet-adapter-react";
-import {useEffect, useMemo, useState} from "react";
-import {encodeBase58} from "ethers";
+import { useState} from "react";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {getAccountId} from "@/utils/common.utilt";
 import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
+import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 
 export default function CheckOrderlyKey() {
-    const {publicKey} = useWallet();
+    const {userAddress, brokerId, secretKey} = useWalletAdapterContext();
     const [keyState, setKeyState] = useState<{
         expiration: string;
         key_status: string;
         orderly_key: string;
         scope: string;
     } | undefined>();
-    const userAddress = useMemo(() => {
-        if (!publicKey) {
-            return
-        }
-        return encodeBase58(publicKey.toBytes());
 
-    }, [publicKey]);
 
     const onCheckOrderlyKey = () => {
         if (!userAddress) {
             return;
         }
-        const secretKey = window.localStorage.getItem(`SOL:${userAddress}`);
         if (!secretKey) return;
         console.log('-- secretKey', secretKey);
 
@@ -35,7 +27,7 @@ export default function CheckOrderlyKey() {
 
         if (!orderlyKey) return;
 
-        const accountId = getAccountId(userAddress, 'woofi_pro')
+        const accountId = getAccountId(userAddress, brokerId)
 
         httpRequestUtil.get<{
             expiration: string;

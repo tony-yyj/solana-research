@@ -10,7 +10,7 @@ import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 export default function OrderlyKeyButton(){
     const { signMessage } = useWallet();
 
-    const {userAddress} = useWalletAdapterContext();
+    const {userAddress, setSecretKey, brokerId} = useWalletAdapterContext();
 
 
     const onSetOrderlyKey = async () => {
@@ -22,7 +22,6 @@ export default function OrderlyKeyButton(){
         const scope = 'read';
         const expiration = timestamp + BigInt(3600000);
 
-        const brokerId = 'woofi_pro';
         const chainId = BigInt(920920);
 
 
@@ -53,6 +52,7 @@ export default function OrderlyKeyButton(){
             console.log('-- set orderly key res', res);
             if (res.success) {
                window.localStorage.setItem(`SOL:${userAddress}`,orderlyKeyPair.secretKey);
+               setSecretKey(orderlyKeyPair.secretKey);
             }
         })
     }

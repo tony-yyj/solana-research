@@ -28,6 +28,13 @@ interface AccountRegistrationMessage extends BaseMessage {
 
 type AccountRegistrationBody = BaseBody<AccountRegistrationMessage>;
 
+interface SettlePnlMessage extends BaseMessage {
+    settleNonce:bigint;
+}
+interface SettlePnlBody extends BaseBody<SettlePnlMessage> {
+    verifyingContract: string;
+}
+
 
 export function getRegistrationDataBody(
     {
@@ -95,6 +102,40 @@ export function getOrderlyKeyDataBody(
         },
         signature: signature,
         userAddress,
+    };
+    return body;
+}
+
+
+
+export function getSettlePnlDataBody(
+    {
+        userAddress,
+        brokerId,
+        chainId,
+        signature,
+        timestamp,
+        settleNonce,
+
+    }: {
+        userAddress: string;
+        brokerId: string;
+        chainId: bigint;
+        signature: string;
+        timestamp: bigint;
+        settleNonce: bigint;
+    }) {
+    const body: SettlePnlBody= {
+        message: {
+            brokerId: brokerId,
+            chainId: chainId,
+            timestamp: timestamp,
+            chainType: 'SOL',
+            settleNonce,
+        },
+        signature: signature,
+        userAddress,
+        verifyingContract: '0x8794E7260517B1766fc7b55cAfcd56e6bf08600e',
     };
     return body;
 }

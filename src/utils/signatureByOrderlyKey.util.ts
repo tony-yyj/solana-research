@@ -4,21 +4,23 @@ import {Keypair} from "@solana/web3.js";
 
 export function signatureByOrderlyKey(
     {
-
-        urlString,
+        url,
+        params,
+        method,
         brokerId,
         userAddress,
         keyPair,
     }: {
-        // GET/v1/withdraw_nonce
-        urlString: string;
+        url: string;
+        params?: object;
+        method: 'POST' | 'GET' | 'PUT' | 'DELETE';
         brokerId: string;
         userAddress: string;
         keyPair: Keypair;
     }
 ) {
     const timestamp = Date.now();
-    const msgToSign = timestamp + urlString;
+    const msgToSign = [timestamp, method.toUpperCase(),url, params ? JSON.stringify(params) : ''].join('');
     const messageBytes = Buffer.from(msgToSign);
     const signature = nacl.sign.detached(messageBytes, keyPair.secretKey);
     const signatureBase64 = Buffer.from(signature).toString('base64');

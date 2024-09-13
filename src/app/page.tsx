@@ -7,6 +7,7 @@ import RegisterAccount from "@/components/registerAccount";
 import CheckAccount from "@/components/checkAccount";
 import CheckOrderlyKey from "@/components/checkOrderlyKey";
 import UserBalance from "@/components/userBalance";
+import SettlePnl from "@/components/settlePnl";
 
 export default function Home() {
     return (
@@ -33,8 +34,9 @@ export default function Home() {
                     <OrderlyKeyButton/>
                 </div>
                 <div className='w-full h-[1px] my-3 bg-black'/>
-                <div>
+                <div className='flex gap-5'>
                     <UserBalance/>
+                    <SettlePnl/>
                 </div>
             </div>
         </InitSolana>

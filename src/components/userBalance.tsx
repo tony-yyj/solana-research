@@ -5,13 +5,12 @@ import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
 import {signatureByOrderlyKey} from "@/utils/signatureByOrderlyKey.util";
 
 export default function UserBalance(){
-    const {userAddress} =useWalletAdapterContext();
+    const {userAddress, brokerId} =useWalletAdapterContext();
 
     const onGetUserBalance = () => {
 
         if (!userAddress) return;
 
-        const brokerId= 'woofi_pro';
         const secretKey = window.localStorage.getItem(`SOL:${userAddress}`);
         if (!secretKey) return;
         console.log('-- secretKey', secretKey);
@@ -20,7 +19,8 @@ export default function UserBalance(){
         if (!keyPair) return;
 
         const headers = signatureByOrderlyKey({
-            urlString: 'GET/v1/client/holding',
+            url: '/v1/client/holding',
+            method: 'GET',
             brokerId,
             userAddress,
             keyPair,

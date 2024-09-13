@@ -1,19 +1,12 @@
 import {Button} from "@/components/base/button";
 import httpRequestUtil from "@/utils/httpRequest.util";
-import {useWallet} from "@solana/wallet-adapter-react";
-import {useMemo, useState} from "react";
-import {encodeBase58} from "ethers";
+import {useState} from "react";
+import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 
 export default function CheckAccount() {
-    const {publicKey} = useWallet();
+    const {userAddress, brokerId} = useWalletAdapterContext();
     const [accountInfo, setAccountInfo] = useState<{ user_id: string; account_id: string } | undefined>();
-    const userAddress = useMemo(() => {
-        if (!publicKey) {
-            return
-        }
-        return encodeBase58(publicKey.toBytes());
 
-    }, [publicKey]);
 
     const onCheckAccount = () => {
         if (!userAddress) {
@@ -21,7 +14,7 @@ export default function CheckAccount() {
         }
         httpRequestUtil.get<{ user_id: string; account_id: string }>(`/v1/get_account`, {
             address: userAddress,
-            broker_id: 'woofi_pro',
+            broker_id: brokerId,
             chain_type: 'SOL',
 
         }).then(res => {
