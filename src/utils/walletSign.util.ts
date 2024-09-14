@@ -1,4 +1,4 @@
-import {AbiCoder, solidityPackedKeccak256} from "ethers";
+import {AbiCoder, decodeBase58, solidityPackedKeccak256} from "ethers";
 import {bytesToHex, hexToBytes} from "ethereum-cryptography/utils";
 import {PublicKey} from "@solana/web3.js";
 import {keccak256} from "ethereum-cryptography/keccak";
@@ -111,6 +111,59 @@ export async function signSettlePnlData(
                 abicoder.encode(
                     ['bytes32', 'uint256', 'uint64', 'uint64'],
                     [brokerIdHash, chainId, settleNonce, timestamp]
+                )
+            )
+        );
+        const msgToSignHex = bytesToHex(msgToSign);
+        const msgToSignTextEncoded: Uint8Array = new TextEncoder().encode(msgToSignHex);
+        const signature = '0x' + bytesToHex(await signMessage(msgToSignTextEncoded));
+        return signature;
+    } catch (e) {
+        console.log('-- error: sign settle pnl data error', e);
+    }
+}
+
+export async function signWithdrawData(
+    {
+        brokerId,
+        chainId,
+        signMessage,
+        timestamp,
+        withdrawNonce,
+        tokenSymbol,
+        tokenAmount,
+        userAddress,
+
+    }: {
+        brokerId: string;
+        chainId: bigint;
+        signMessage: ((message: Uint8Array) => Promise<Uint8Array>);
+        timestamp: bigint;
+        withdrawNonce: bigint;
+        tokenSymbol: string;
+        tokenAmount: bigint;
+        userAddress: string;
+    }
+){
+    try{
+        const brokerIdHash = solidityPackedKeccak256(['string'], [brokerId]);
+        const tokenSymbolHash = solidityPackedKeccak256(['string'], [tokenSymbol]);
+        const salt = keccak256(Buffer.from('Orderly Network'));
+        const abicoder = AbiCoder.defaultAbiCoder();
+        const msgToSign = keccak256(
+            hexToBytes(
+                abicoder.encode(
+                    ['bytes32', 'bytes32', 'uint256', 'bytes32', 'uint256', 'uint64', 'uint64', 'bytes32'],
+                    [
+                        brokerIdHash,
+                        tokenSymbolHash,
+                        chainId,
+                        hexToBytes(decodeBase58(userAddress).toString(16)),
+                        tokenAmount,
+                        withdrawNonce,
+                        timestamp,
+                        salt,
+                    ]
                 )
             )
         );

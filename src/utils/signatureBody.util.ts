@@ -35,6 +35,16 @@ interface SettlePnlBody extends BaseBody<SettlePnlMessage> {
     verifyingContract: string;
 }
 
+interface WithdrawMessage extends BaseMessage {
+    receiver: string;
+    token: string;
+    amount: bigint;
+    withdrawNonce:bigint;
+}
+interface WithdrawBody extends BaseBody<WithdrawMessage>{
+    verifyingContract: string;
+}
+
 
 export function getRegistrationDataBody(
     {
@@ -138,4 +148,44 @@ export function getSettlePnlDataBody(
         verifyingContract: '0x8794E7260517B1766fc7b55cAfcd56e6bf08600e',
     };
     return body;
+}
+
+export function getWithdrawBody (
+    {
+        userAddress,
+        brokerId,
+        chainId,
+        signature,
+        timestamp,
+        withdrawNonce,
+        tokenAmount,
+        tokenSymbol,
+    }: {
+        userAddress: string;
+        brokerId: string;
+        chainId: bigint;
+        signature: string;
+        timestamp: bigint;
+        withdrawNonce: bigint;
+        tokenAmount:bigint;
+        tokenSymbol: string;
+    }
+) {
+    const body: WithdrawBody = {
+        message: {
+            brokerId,
+            chainId,
+            receiver: userAddress,
+            token: tokenSymbol,
+            amount: tokenAmount,
+            withdrawNonce,
+            timestamp,
+            chainType: 'SOL',
+        },
+        signature: signature,
+        userAddress,
+        verifyingContract: '0x8794E7260517B1766fc7b55cAfcd56e6bf08600e',
+    };
+    return body;
+
 }

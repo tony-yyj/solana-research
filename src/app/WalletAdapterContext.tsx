@@ -14,7 +14,8 @@ const defaultContextValue: WalletAdapterValue = {
     userAddress: undefined,
     secretKey: undefined,
     setSecretKey: () => {},
-    chainId: BigInt(920920),
+    // chainid 900900900 901901901 902902902
+    chainId: BigInt(902902902),
     brokerId: 'woofi_pro',
 
 
@@ -26,7 +27,7 @@ export const WalletAdapterContextProvider = ({children}: { children: ReactNode }
     const {publicKey} = useWallet();
     const [secretKey, setSecretKey] = useState<string|undefined>();
     const chainId = useMemo(() => {
-       return BigInt(920920);
+       return BigInt(902902902);
     }, [])
     const brokerId = useMemo(() => {
         return 'woofi_pro';

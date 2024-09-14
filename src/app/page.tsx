@@ -8,6 +8,7 @@ import CheckAccount from "@/components/checkAccount";
 import CheckOrderlyKey from "@/components/checkOrderlyKey";
 import UserBalance from "@/components/userBalance";
 import SettlePnl from "@/components/settlePnl";
+import Withdraw from "@/components/withdraw";
 
 export default function Home() {
     return (
@@ -38,6 +39,11 @@ export default function Home() {
                     <UserBalance/>
                     <SettlePnl/>
                 </div>
+                <div className='w-full h-[1px] my-3 bg-black'/>
+                <div className='flex gap-5'>
+                    <Withdraw/>
+                </div>
+
             </div>
         </InitSolana>
     );

@@ -3,9 +3,23 @@ import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
 import {signatureByOrderlyKey} from "@/utils/signatureByOrderlyKey.util";
+import {useState} from "react";
 
-export default function UserBalance(){
-    const {userAddress, brokerId} =useWalletAdapterContext();
+interface BalanceResponseInterface {
+    holding: [
+        {
+            token: string;
+            holding: number;
+            frozen: number;
+            pending_short: number;
+            updated_time: number;
+        }
+    ]
+}
+
+export default function UserBalance() {
+    const {userAddress, brokerId} = useWalletAdapterContext();
+    const [usdcBalance, setUsdcBalance] = useState<number>(0);
 
     const onGetUserBalance = () => {
 
@@ -27,10 +41,19 @@ export default function UserBalance(){
         })
         console.log('-- headers', headers, JSON.stringify(headers));
 
-        httpRequestUtil.get(`v1/client/holding`, {}, {
+        httpRequestUtil.get<BalanceResponseInterface>(`v1/client/holding`, {}, {
             headers,
-        }).then(res=>{
+        }).then(res => {
             console.log('-- user balance', res);
+            if (res.success) {
+                if (res.data.holding.length) {
+                    const usdc = res.data.holding.find(item => item.token === 'USDC')
+                    if (usdc) {
+                        setUsdcBalance(usdc.holding);
+                    }
+                }
+                res.data.holding
+            }
         });
     }
 
@@ -39,7 +62,8 @@ export default function UserBalance(){
             <h2>
                 get user Balance in woofipro
             </h2>
-           <Button onClick={onGetUserBalance}>get balance</Button>
+            <Button onClick={onGetUserBalance}>get balance</Button>
+            <p>USDC holding: {usdcBalance} USDC</p>
         </div>
     )
 }
