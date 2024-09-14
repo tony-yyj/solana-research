@@ -10,6 +10,7 @@ import UserBalance from "@/components/userBalance";
 import SettlePnl from "@/components/settlePnl";
 import Withdraw from "@/components/withdraw";
 import WithdrawHistory from "@/components/withdrawHistory";
+import ConnectSolanaWallet from "@/components/connectSolanaWallet";
 
 export default function Home() {
     return (
@@ -19,6 +20,9 @@ export default function Home() {
 
                     <WalletMultiButton/>
                     <WalletDisconnectButton/>
+                </div>
+                <div>
+                    <ConnectSolanaWallet/>
                 </div>
                 <div className='w-full h-[1px] my-3 bg-black'/>
                 <div>
