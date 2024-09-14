@@ -20,8 +20,19 @@ export function signatureByOrderlyKey(
     }
 ) {
     const timestamp = Date.now();
-    const msgToSign = [timestamp, method.toUpperCase(),url, params ? JSON.stringify(params) : ''].join('');
-    const messageBytes = Buffer.from(msgToSign);
+    let messageToSign = [timestamp, method.toUpperCase()].join('');;
+    if (method === 'GET') {
+        if (params && Object.keys(params).length) {
+
+            url = `${url}?${new URLSearchParams(params as Record<string, string>).toString()}`
+        }
+        messageToSign =  [messageToSign,url].join('');
+    } else if (method === 'POST' ) {
+
+       messageToSign = [messageToSign, url, params ? JSON.stringify(params) : ''].join('');
+    }
+
+    const messageBytes = Buffer.from(messageToSign);
     const signature = nacl.sign.detached(messageBytes, keyPair.secretKey);
     const signatureBase64 = Buffer.from(signature).toString('base64');
 
