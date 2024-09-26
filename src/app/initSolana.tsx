@@ -10,7 +10,6 @@ import {
 } from '@solana/wallet-adapter-react-ui';
 import {clusterApiUrl} from '@solana/web3.js';
 import {ReactNode, useMemo} from "react";
-import {WalletAdapterContextProvider} from "@/app/WalletAdapterContext";
 import {GlowWalletAdapter} from "@solana/wallet-adapter-glow";
 
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -32,12 +31,8 @@ export default function InitSolana({children}: { children: ReactNode }) {
         <ConnectionProvider endpoint={endPoint}>
             <WalletProvider wallets={wallets}>
                 <WalletModalProvider>
-                    <WalletAdapterContextProvider>
 
-                        <div>
                             {children}
-                        </div>
-                    </WalletAdapterContextProvider>
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>

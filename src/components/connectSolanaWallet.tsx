@@ -1,15 +1,15 @@
 import {Button} from "@/components/base/button";
 import {useWallet} from "@solana/wallet-adapter-react";
-import {PhantomWalletName, SolflareWalletName} from "@solana/wallet-adapter-wallets";
-import {WalletName} from "@solana/wallet-adapter-base";
-import {GlowWalletName} from "@solana/wallet-adapter-glow";
 import {useEffect} from "react";
+import {useWalletModal} from "@solana/wallet-adapter-react-ui";
+
 
 export default function ConnectSolanaWallet() {
-    const { connect, disconnect, select, wallet} =
+    const {setVisible} =useWalletModal();
+    const { connect, disconnect, wallet} =
         useWallet();
-    const onConnectSolanaWallet =async (walletName: WalletName) => {
-        select(walletName);
+    const onConnectSolanaWallet =async () => {
+        setVisible(true);
 
     }
 
@@ -36,13 +36,7 @@ export default function ConnectSolanaWallet() {
             <div className='flex gap-5'>
 
                 <div>
-                    <h2>wallet list</h2>
-                    <div>
-                        <Button onClick={() => onConnectSolanaWallet(PhantomWalletName)}>Phantom</Button>
-                        <Button onClick={() => onConnectSolanaWallet(SolflareWalletName)}>Solflare</Button>
-                        <Button onClick={() => onConnectSolanaWallet(GlowWalletName)}>Glow</Button>
-                        <Button onClick={() => onConnectSolanaWallet(PhantomWalletName)}>Coinbase</Button>
-                    </div>
+                        <Button onClick={() => onConnectSolanaWallet()}>Connect Solana wallet</Button>
                 </div>
                 <Button onClick={onDisconnectSolanaWallet}>disconnect solana wallet</Button>
             </div>

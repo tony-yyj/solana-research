@@ -10,50 +10,46 @@ import UserBalance from "@/components/userBalance";
 import SettlePnl from "@/components/settlePnl";
 import Withdraw from "@/components/withdraw";
 import WithdrawHistory from "@/components/withdrawHistory";
-import ConnectSolanaWallet from "@/components/connectSolanaWallet";
+import {AppProvider} from "@/app/AppProvider";
+import {WalletAdapterContextProvider} from "@/app/WalletAdapterContext";
+import ConnectWallet from "@/components/ConnectWallet";
+import ChainList from "@/components/ChainList";
 
 export default function Home() {
     return (
-        <InitSolana>
-            <div className='px-5 py-3'>
-                <div suppressHydrationWarning>
+        <AppProvider>
 
-                    <WalletMultiButton/>
-                    <WalletDisconnectButton/>
-                </div>
-                <div>
-                    <ConnectSolanaWallet/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div>
-                    <WalletBalance/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div className='flex gap-5'>
-                    <CheckAccount/>
-                    <CheckOrderlyKey/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div className='flex gap-5'>
+            <InitSolana>
+                <WalletAdapterContextProvider>
 
-                    <RegisterAccount/>
-                    <OrderlyKeyButton/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div className='flex gap-5'>
-                    <UserBalance/>
-                    <SettlePnl/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div className='flex gap-5'>
-                    <Withdraw/>
-                </div>
-                <div className='w-full h-[1px] my-3 bg-black'/>
-                <div className='flex gap-5'>
-                    <WithdrawHistory/>
-                </div>
+                    <div className='px-5 py-3'>
+                        <div suppressHydrationWarning>
 
-            </div>
-        </InitSolana>
+                            <WalletMultiButton/>
+                            <WalletDisconnectButton/>
+                        </div>
+                        <div>
+                            <ChainList/>
+                        </div>
+                        <div>
+                            <ConnectWallet/>
+                        </div>
+                        <div className='w-full h-[1px] my-3 bg-black'/>
+                        <div>
+                            <WalletBalance/>
+                        </div>
+                        <div className='w-full h-[1px] my-3 bg-black'/>
+                        <div className='flex gap-5'>
+                            <CheckAccount/>
+                            <CheckOrderlyKey/>
+                        </div>
+
+
+                    </div>
+
+                </WalletAdapterContextProvider>
+            </InitSolana>
+
+        </AppProvider>
     );
 }
