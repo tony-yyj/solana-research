@@ -3,7 +3,7 @@ import { useState} from "react";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {getAccountId} from "@/utils/common.utilt";
 import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function CheckOrderlyKey() {
     const {userAddress, brokerId, secretKey} = useWalletAdapterContext();

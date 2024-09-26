@@ -1,5 +1,4 @@
 'use client';
-import InitSolana from "@/app/initSolana";
 import WalletBalance from "@/app/walletBalance";
 import {WalletDisconnectButton, WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import OrderlyKeyButton from "@/components/OrderlyKeyButton";
@@ -11,9 +10,10 @@ import SettlePnl from "@/components/settlePnl";
 import Withdraw from "@/components/withdraw";
 import WithdrawHistory from "@/components/withdrawHistory";
 import {AppProvider} from "@/app/AppProvider";
-import {WalletAdapterContextProvider} from "@/app/WalletAdapterContext";
 import ConnectWallet from "@/components/ConnectWallet";
 import ChainList from "@/components/ChainList";
+import {WalletAdapterContextProvider} from "@/context/WalletAdapterContext";
+import InitSolana from "@/context/initSolana";
 
 export default function Home() {
     return (

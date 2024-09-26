@@ -5,7 +5,7 @@ import {signOrderlyKey} from "@/utils/walletSign.util";
 import {getOrderlyKeyDataBody} from "@/utils/signatureBody.util";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {Button} from "@/components/base/button";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function OrderlyKeyButton(){
     const { signMessage } = useWallet();

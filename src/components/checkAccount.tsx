@@ -1,12 +1,13 @@
 import {Button} from "@/components/base/button";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import {useState} from "react";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function CheckAccount() {
-    const {userAddress, brokerId} = useWalletAdapterContext();
+    const {walletAdapter, brokerId} = useWalletAdapterContext();
     const [accountInfo, setAccountInfo] = useState<{ user_id: string; account_id: string } | undefined>();
 
+    const userAddress = walletAdapter?.userAddress;
 
     const onCheckAccount = () => {
         if (!userAddress) {
@@ -15,7 +16,7 @@ export default function CheckAccount() {
         httpRequestUtil.get<{ user_id: string; account_id: string }>(`/v1/get_account`, {
             address: userAddress,
             broker_id: brokerId,
-            chain_type: 'SOL',
+            chain_type: walletAdapter.namespace,
 
         }).then(res => {
             if (res.success) {

@@ -1,8 +1,20 @@
-import {useConnectWallet} from "@web3-onboard/react";
-import {useCallback, useMemo} from "react";
+import {useConnectWallet, useSetChain} from "@web3-onboard/react";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {Chain, WalletAdapter} from "@/types/wallet.type";
+import {hex2int, int2hex} from "@/utils";
 
-export default function useWeb3OnboardWalletAdapter() {
+export default function useWeb3OnboardWalletAdapter(): WalletAdapter {
     const [{wallet}, connect, EVMDisconnect] = useConnectWallet();
+    const [{ connectedChain }, setChain] = useSetChain();
+
+
+    const connected = useMemo(() => {
+        if (wallet && wallet.accounts) {
+            return true;
+        }
+        return false;
+    }, [wallet])
+
 
     const userAddress = useMemo(() => {
         if (wallet && wallet.accounts) {
@@ -12,16 +24,25 @@ export default function useWeb3OnboardWalletAdapter() {
     }, [wallet])
 
     const disconnect = useCallback(() => {
+        console.log('-- disconnect evm', wallet)
         if (wallet) {
             EVMDisconnect({ label: wallet?.label }).then();
         }
 
     }, [EVMDisconnect, wallet]);
 
+    const changeChain = (chain: Chain) => {
+       return setChain({chainId: int2hex(chain.chain_id!)})
+    }
+
     return {
+        connected,
         connect,
         disconnect,
         userAddress,
+        changeChain,
+        namespace: "EVM",
+        connectedChain: connectedChain ? hex2int(connectedChain.id).toString() : undefined,
 
     }
 }

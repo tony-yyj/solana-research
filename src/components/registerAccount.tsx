@@ -3,7 +3,7 @@ import httpRequestUtil from "@/utils/httpRequest.util";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {getRegistrationDataBody} from "@/utils/signatureBody.util";
 import {signRegisterData} from "@/utils/walletSign.util";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 
 export default function RegisterAccount() {

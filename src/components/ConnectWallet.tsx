@@ -1,5 +1,5 @@
 import {Button} from "@/components/base/button";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function ConnectWallet(){
     const {namespace, setNamespace, walletAdapter} = useWalletAdapterContext();

@@ -1,6 +1,6 @@
 import {Button} from "@/components/base/button";
 import {useChains} from "@/hooks/useChains";
-import {useWalletAdapterContext} from "@/app/WalletAdapterContext";
+import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function ChainList() {
     const chains = useChains();
