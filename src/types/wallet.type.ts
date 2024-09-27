@@ -11,7 +11,7 @@ export interface WalletAdapter{
     publicKey?: string;
     secretKey?: string;
     updateSecretKey?:(newKey?: string ) =>void;
-    setOrderlyKey?: () => Promise<string | undefined>;
+    setOrderlyKey?: (expiration?: number) => Promise<string | undefined>;
     orderlyKeyInfo?: {secretKey: string, publicKey: string} | undefined;
 }
 

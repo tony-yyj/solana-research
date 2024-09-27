@@ -1,19 +1,25 @@
 'use client';
 import {Button} from "@/components/base/button";
 import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
+import { useState } from "react";
 
 export default function OrderlyKeyButton(){
     const {walletAdapter,} = useWalletAdapterContext();
     const setOrderlyKey = walletAdapter?.setOrderlyKey;
     const {orderlyKeyInfo} = walletAdapter ?? {};
+    const [expiration, setExpiration] = useState<number>(1);
 
 
     const onSetOrderlyKey = async () => {
+      const expirationTime = expiration * 24 * 3600
+      if (Number.isNaN(expirationTime)) {
+        return
+      }
         try {
             if (!setOrderlyKey) {
                return;
             }
-            setOrderlyKey().then(res => {
+            setOrderlyKey(expirationTime).then(res => {
                 console.log('-- res', res)
 
             })
@@ -31,9 +37,18 @@ export default function OrderlyKeyButton(){
 
           2. set orderly key
         </h2>
-        <Button onClick={onSetOrderlyKey}>
-          set orderly key
-        </Button>
+        <div className='flex items-center gap-4'>
+
+          <div className='flex items-center gap-2'>
+
+            <input placeholder="expiration" type={"number"} value={expiration} onChange={(e) => setExpiration(parseInt(e.target.value))} />
+            day (default is 1 day)
+          </div>
+
+          <Button onClick={onSetOrderlyKey}>
+            set new  orderly key
+          </Button>
+        </div>
         <div className='max-w-[600px] break-all'>
           <h3>secret key:</h3>
           <p> {orderlyKeyInfo?.secretKey}</p>

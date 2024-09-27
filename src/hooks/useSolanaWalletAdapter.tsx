@@ -55,7 +55,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     });
   }, [solanaDisconnect]);
 
-  const setOrderlyKey = useCallback(async () => {
+  const setOrderlyKey = useCallback(async (expirationSecond: number = 24 * 3600) => {
 
     if (!userAddress) return;
     if (!signMessage) return;
@@ -63,7 +63,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     const orderlyKeyPair = generateOrderlyKey();
     if (!orderlyKeyPair) return;
     const scope = "read";
-    const expiration = timestamp + BigInt(3600000);
+    const expiration = timestamp + BigInt(expirationSecond * 1000);
 
     const chainId = BigInt(920920);
 
