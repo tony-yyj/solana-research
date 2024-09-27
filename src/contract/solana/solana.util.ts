@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
-  BROKER_SEED, DVN_PROGRAM_ID,
-  ENDPOINT_PROGRAM_ID, EXECUTOR_PROGRAM_ID, PRICE_FEED_PROGRAM_ID,
+  BROKER_SEED, DEV_LOOKUP_TABLE_ADDRESS, DEV_OAPP_PROGRAM_ID, DVN_PROGRAM_ID,
+  ENDPOINT_PROGRAM_ID, EXECUTOR_PROGRAM_ID, PRICE_FEED_PROGRAM_ID, QA_LOOKUP_TABLE_ADDRESS, QA_OAPP_PROGRAM_ID,
   RECEIVE_LIB_PROGRAM_ID,
-  SEND_LIB_PROGRAM_ID,
+  SEND_LIB_PROGRAM_ID, STAGING_LOOKUP_TABLE_ADDRESS, STAGING_OAPP_PROGRAM_ID,
   TOKEN_SEED,
   VAULT_AUTHORITY_SEED
 } from "./constant";
@@ -17,6 +17,7 @@ import {
   PEER_SEED, PRICE_FEED_SEED, SEND_CONFIG_SEED,
   SEND_LIBRARY_CONFIG_SEED, ULN_SEED
 } from "@layerzerolabs/lz-solana-sdk-v2";
+import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
 
 export const getUSDCAccounts = (usdc: PublicKey, owner: PublicKey): PublicKey => {
   const usdcTokenAccount = getAssociatedTokenAddressSync(
@@ -58,7 +59,7 @@ export function getBrokerPDA(programId: PublicKey, brokerHash: string): PublicKe
 export function getTokenPDA(programId: PublicKey, tokenHash: string): PublicKey {
   const hash = Array.from(Buffer.from( tokenHash.slice(2), "hex"));
   return PublicKey.findProgramAddressSync(
-    [Buffer.from(BROKER_SEED, "utf8"),Buffer.from(hash)],
+    [Buffer.from(TOKEN_SEED, "utf8"),Buffer.from(hash)],
     programId
   )[0];}
 
@@ -197,4 +198,28 @@ export function getDvnConfigPda(): PublicKey {
     [Buffer.from(DVN_CONFIG_SEED, "utf8")],
     DVN_PROGRAM_ID
   )[0];
+}
+
+export  function getLookupTableAddress( OAPP_PROGRAM_ID: PublicKey): PublicKey {
+  if (OAPP_PROGRAM_ID.toBase58() === DEV_OAPP_PROGRAM_ID.toBase58()) {
+    console.log("DEV_LOOKUP_TABLE_ADDRESS: ", DEV_LOOKUP_TABLE_ADDRESS.toBase58());
+    return DEV_LOOKUP_TABLE_ADDRESS;
+  }
+  if (OAPP_PROGRAM_ID.toBase58() === QA_OAPP_PROGRAM_ID.toBase58()) {
+    return QA_LOOKUP_TABLE_ADDRESS;
+  }
+  if (OAPP_PROGRAM_ID.toBase58() === STAGING_OAPP_PROGRAM_ID.toBase58()) {
+    return STAGING_LOOKUP_TABLE_ADDRESS;
+  }
+
+  return DEV_LOOKUP_TABLE_ADDRESS
+}
+
+
+export async function getLookupTableAccount(provider:AnchorProvider, lookupTableAddress: PublicKey) {
+  const lookupTableAccount = (
+    await provider.connection.getAddressLookupTable(lookupTableAddress)
+  ).value;
+
+  return lookupTableAccount;
 }

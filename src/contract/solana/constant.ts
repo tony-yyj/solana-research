@@ -22,3 +22,15 @@ export const PEER_ADDRESS = addressToBytes32('0x9Dc724b24146BeDD2dA28b8C4B741261
 export const DST_EID = 40200;
 
 export const DEV_RPC = "https://api.devnet.solana.com";
+
+export const DEV_LOOKUP_TABLE_ADDRESS = new PublicKey("BWp8HaYYhiNHekt3zgQhqoCrRftneGxxfgKmCZ6svHN");
+export const QA_LOOKUP_TABLE_ADDRESS = new PublicKey("BswrQQoPKAFojTuJutZcBMtigAgTghEH4M8ofn3EG2X2");
+export const STAGING_LOOKUP_TABLE_ADDRESS = new PublicKey("BbGKfxuPwDmu58BjPpd7PMG69TqnZjSpKaLDMgf9E9Dr");
+export const MAIN_LOOKUP_TABLE_ADDRESS = DEV_LOOKUP_TABLE_ADDRESS;
+
+export const MOCK_LOOKUP_TABLE_ADDRESS = new PublicKey("6hx7mCC94wxC8QYDZ9dGeURibHXRbsxLPaUYYip6tWM6");
+export const MOCK_OAPP_PROGRAM_ID = new PublicKey("EFLrsQmcfYTSvVrUiP4qruDhbYBtjbQNAhC6tkLJbBtQ");
+
+export const DEV_OAPP_PROGRAM_ID = new PublicKey("EYJq9eU4GMRUriUJBgGoZ8YLQBXcWaciXuSsEXE7ieQS");
+export const QA_OAPP_PROGRAM_ID = new PublicKey("5zBjLor7vEraAt4zp2H82sy9MSqFoDnNa1Lx6EYKTYRZ");
+export const STAGING_OAPP_PROGRAM_ID = new PublicKey("9shwxWDUNhtwkHocsUAmrNAQfBH2DHh4njdAEdHZZkF2");

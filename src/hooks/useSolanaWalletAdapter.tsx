@@ -1,7 +1,7 @@
 'use client'
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { AnchorWallet, useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { encodeBase58 } from "ethers";
 import { WalletAdapter } from "@/types/wallet.type";
 import { generateOrderlyKey, recoverOrderlyKeyPair } from "@/utils/orderlyKey.util";
@@ -10,9 +10,7 @@ import { getOrderlyKeyDataBody } from "@/utils/signatureBody.util";
 import httpRequestUtil from "@/utils/httpRequest.util";
 import { useAppContext } from "@/app/AppProvider";
 import { convertObjectBigIntToString } from "@/utils";
-import solanaVault from '@/contract/solana/idl/solana_vault.json';
 import {
-  DEV_RPC,
   DEV_USDC_ACCOUNT,
   DST_EID, DVN_PROGRAM_ID,
   ENDPOINT_PROGRAM_ID, EXECUTOR_PROGRAM_ID,
@@ -23,7 +21,7 @@ import {
   getBrokerPDA, getDefaultSendConfigPda,
   getDefaultSendLibConfigPda, getDvnConfigPda,
   getEndorcedOptionsPda,
-  getEndpointSettingPda, getEventAuthorityPda, getExecutorConfigPda,
+  getEndpointSettingPda, getEventAuthorityPda, getExecutorConfigPda, getLookupTableAccount, getLookupTableAddress,
   getNoncePda,
   getOAppConfigPda,
   getPeerPda, getPriceFeedPda, getSendConfigPda,
@@ -40,8 +38,9 @@ import {
   Connection, sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
+  sendAndConfirmRawTransaction,
   TransactionInstruction,
-  TransactionMessage, VersionedTransaction
+  TransactionMessage, VersionedTransaction, Keypair
 } from "@solana/web3.js";
 import { AnchorProvider, BN, Idl, Program, setProvider } from "@coral-xyz/anchor";
 import { useAnchorProvider } from "@/hooks/useAnchorProvider";
@@ -59,12 +58,13 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     disconnect: solanaDisconnect,
     wallet,
     signMessage,
+    sendTransaction,
+    publicKey,
   } = useWallet();
   const connectRef = useRef<boolean>(false);
   // console.log("-- connecting", {
   //   connecting, connected, wallet
   // });
-  const { publicKey } = useWallet();
   const provider = useAnchorProvider();
 
   const connect = useCallback(() => {
@@ -87,11 +87,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
   }, [publicKey]);
 
   // const program = userAddress && new Program<SolanaVault>(VaultIDL, provider);
-  const program = new Program<SolanaVault>(VaultIDL,
-    OAPP_PROGRAM_ID,
-    {
-      connection,
-    });
+
   const disconnect = useCallback(() => {
     console.log("-- disconnect solana");
     solanaDisconnect().catch(e => {
@@ -148,9 +144,15 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
   }, [userAddress, signMessage, brokerId]);
 
   const deposit = useCallback(async () => {
-    if (!publicKey || !program) {
+    if (!publicKey || !provider || !wallet) {
       return;
     }
+
+    const program = new Program<SolanaVault>(VaultIDL,
+      OAPP_PROGRAM_ID,
+      {
+        connection,
+      });
     const usdc = DEV_USDC_ACCOUNT;
     const userUSDCAccount = getUSDCAccounts(usdc,publicKey);
     console.log('-- use usdc account', userUSDCAccount.toBase58());
@@ -213,10 +215,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       tokenAmount: new BN(10_000_000),
     };
 
-    const sendParambak = {
-      nativeFee: BigInt(1_000_000_000),
-      lzTokenFee: BigInt(0),
-    }
+
     const sendParam = {
       nativeFee: new BN(1_000_000_000),
       lzTokenFee:new BN(0),
@@ -224,7 +223,6 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     }
     console.log('--- value params', {
       vaultDepositParams,
-      sendParambak,
       sendParam,
     });
     const ixDepositEntry = await program.methods.deposit(vaultDepositParams, sendParam).accounts({
@@ -248,41 +246,48 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: false,
+        // 0
         pubkey: oappConfigPDA,
       },
       {
         isSigner: false,
         isWritable: false,
-        pubkey: SEND_LIB_PROGRAM_ID
+        pubkey: SEND_LIB_PROGRAM_ID,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 7
         pubkey:sendLibPDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 9
         pubkey: defaultSendLibPDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 8
         pubkey:sendLibInfoPDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 14
         pubkey: endpointSettingPDA,
       },
       {
         isSigner: false,
         isWritable: true,
+        // 15
         pubkey: noncePDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 3
         pubkey:eventAuthorityPDA,
       },
       // ULN solana/programs/programs/uln/src/instructions/endpoint/send.rs
@@ -294,16 +299,19 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: false,
+        // 13
         pubkey: ulnSettingPDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 10
         pubkey: sendConfigPDA,
       },
       {
         isSigner: false,
         isWritable: false,
+        // 11
         pubkey: defaultSendConfigPDA,
       },
       {
@@ -324,6 +332,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: false,
+        // 12
         pubkey: ulnEventAuthorityPDA,
       },
       {
@@ -339,6 +348,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: true,
+        // 16
         pubkey:executorConfigPDA,
       },
       {
@@ -349,6 +359,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: false,
+        // 17
         pubkey: priceFeedPDA,
       },
       {
@@ -359,6 +370,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: true,
+        // 18
         pubkey:dvnConfigPDA,
       },
       {
@@ -369,27 +381,53 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       {
         isSigner: false,
         isWritable: false,
+        // 17
         pubkey: priceFeedPDA,
       }
     ]).instruction();
+
+    const lookupTableAddress = getLookupTableAddress(OAPP_PROGRAM_ID);
+    const lookupTableAccount = await getLookupTableAccount(provider, lookupTableAddress);
+    if (!lookupTableAccount) {
+      console.log('-- lookup table account error');
+     return;
+    }
+
 
     const ixAddComputeBudget = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
     const msg = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: (await provider.connection.getLatestBlockhash()).blockhash,
       instructions:[ixDepositEntry, ixAddComputeBudget]
-    }).compileToV0Message();
+    }).compileToV0Message([lookupTableAccount]);
+    // const tx = new VersionedTransaction(msg);
+    //
+    //
+    // const res = await connection.sendTransaction(tx).catch(e =>{
+    //   console.log('e', e);
+    //
+    // });
+
+    // console.log('-- res', res);
 
     const tx = new VersionedTransaction(msg);
-    console.log('-- tx',tx);
-    provider.connection.sendTransaction(tx).then(res => {
+
+    const signed =anchorWallet?.signTransaction(tx);
+    console.log('signed', signed);
+    connection.sendTransaction(tx).then(res => {
       console.log('-- res', res);
     });
-    // sendAndConfirmTransaction()
+
+    // console.log('-- tx', tx);
+    // tx.sign([])
+    // console.log('-- tx',tx);
+    // provider.connection.sendTransaction(tx).then(res => {
+    //   console.log('-- res', res);
+    // });
+    //
 
 
-
-  }, [publicKey, program])
+  }, [publicKey, provider])
 
   useEffect(() => {
     if (!userAddress) {
