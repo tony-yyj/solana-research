@@ -1,6 +1,6 @@
 import {bytesToHex, hexToBytes} from "ethereum-cryptography/utils";
-import {AbiCoder, decodeBase58, solidityPackedKeccak256} from "ethers";
-import {keccak256} from "ethereum-cryptography/keccak";
+import {AbiCoder, decodeBase58, solidityPackedKeccak256, keccak256} from "ethers";
+import { PublicKey } from "@solana/web3.js";
 
 export const calculateAccountId = (address: string, brokerId: string): string => {
     if (!brokerId || brokerId.trim().length === 0) {
@@ -27,9 +27,21 @@ export const calculateAccountId = (address: string, brokerId: string): string =>
     // console.log('concatenatedAbiString:', concatenate);
 
     // Return the keccak256 hash of the concatenated bytes as a hex string
-    return '0x' + bytesToHex(keccak256(hexToBytes(concatenate)));
+    return '0x' +keccak256(concatenate);
 };
 
 export function getAccountId (userAddress: string, brokerId: string) {
     return calculateAccountId(userAddress,brokerId);
+}
+
+export function getHash(value: string): string {
+    return solidityPackedKeccak256(['string'], [value])
+
+}
+
+export function getSolAccountId(userAccount: PublicKey, brokerId: string):string{
+    // base58 => bytes
+    const decodedUserAccount = Buffer.from(userAccount.toBytes());
+    const abicoder = AbiCoder.defaultAbiCoder()
+    return keccak256(abicoder.encode(['bytes32', 'bytes32'], [decodedUserAccount, getHash(brokerId)]))
 }

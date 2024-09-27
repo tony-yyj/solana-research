@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "4.0.4",
+    "@coral-xyz/anchor": "0.29.0",
+    "@layerzerolabs/lz-solana-sdk-v2": "2.3.45-oft-rc.0",
+    "@layerzerolabs/lz-v2-utilities": "2.3.45-oft-rc.0",
+    "@solana/spl-token": "0.4.8",
     "@solana/wallet-adapter-base": "0.9.23",
     "@solana/wallet-adapter-glow": "0.1.18",
     "@solana/wallet-adapter-react": "0.15.35",

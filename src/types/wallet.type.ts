@@ -13,6 +13,7 @@ export interface WalletAdapter{
     updateSecretKey?:(newKey?: string ) =>void;
     setOrderlyKey?: (expiration?: number) => Promise<string | undefined>;
     orderlyKeyInfo?: {secretKey: string, publicKey: string} | undefined;
+    deposit?: () => void;
 }
 
 export interface Chain {
