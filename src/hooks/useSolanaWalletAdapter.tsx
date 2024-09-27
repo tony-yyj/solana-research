@@ -144,7 +144,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
   }, [userAddress, signMessage, brokerId]);
 
   const deposit = useCallback(async () => {
-    if (!publicKey || !provider || !wallet) {
+    if (!publicKey || !provider || !anchorWallet) {
       return;
     }
 
@@ -427,7 +427,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     //
 
 
-  }, [publicKey, provider])
+  }, [publicKey, provider, anchorWallet, connection])
 
   useEffect(() => {
     if (!userAddress) {
