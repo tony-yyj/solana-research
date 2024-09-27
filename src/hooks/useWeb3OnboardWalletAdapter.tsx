@@ -1,11 +1,12 @@
 import {useConnectWallet, useSetChain} from "@web3-onboard/react";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import {Chain, WalletAdapter} from "@/types/wallet.type";
 import {hex2int, int2hex} from "@/utils";
 
 export default function useWeb3OnboardWalletAdapter(): WalletAdapter {
     const [{wallet}, connect, EVMDisconnect] = useConnectWallet();
     const [{ connectedChain }, setChain] = useSetChain();
+    const [secretKey, setSecretKey] = useState<string | undefined>();
 
 
     const connected = useMemo(() => {
@@ -42,6 +43,8 @@ export default function useWeb3OnboardWalletAdapter(): WalletAdapter {
         userAddress,
         changeChain,
         namespace: "EVM",
+        secretKey,
+        updateSecretKey: setSecretKey,
         connectedChain: connectedChain ? hex2int(connectedChain.id).toString() : undefined,
 
     }

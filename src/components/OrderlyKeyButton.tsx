@@ -1,71 +1,45 @@
 'use client';
-import {generateOrderlyKey} from "@/utils/orderlyKey.util";
-import {useWallet} from "@solana/wallet-adapter-react";
-import {signOrderlyKey} from "@/utils/walletSign.util";
-import {getOrderlyKeyDataBody} from "@/utils/signatureBody.util";
-import httpRequestUtil from "@/utils/httpRequest.util";
 import {Button} from "@/components/base/button";
 import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 
 export default function OrderlyKeyButton(){
-    const { signMessage } = useWallet();
-
-    const {userAddress, setSecretKey, brokerId} = useWalletAdapterContext();
+    const {walletAdapter,} = useWalletAdapterContext();
+    const setOrderlyKey = walletAdapter?.setOrderlyKey;
+    const {orderlyKeyInfo} = walletAdapter ?? {};
 
 
     const onSetOrderlyKey = async () => {
-        if (!userAddress) return;
-        if (!signMessage) return;
-        const timestamp = BigInt(Date.now());
-        const orderlyKeyPair = generateOrderlyKey();
-        if (!orderlyKeyPair) return;
-        const scope = 'read';
-        const expiration = timestamp + BigInt(3600000);
-
-        const chainId = BigInt(920920);
-
-
-        const signature = await signOrderlyKey({
-            signMessage,
-            orderlyKey: orderlyKeyPair.publicKey,
-            timestamp,
-            scope,
-            brokerId,
-            chainId,
-            expiration,
-        });
-
-        if (!signature) return;
-
-        const orderlyKeyBody = getOrderlyKeyDataBody({
-            userAddress,
-            brokerId,
-            chainId,
-            signature,
-            timestamp,
-            orderlyKey: orderlyKeyPair.publicKey,
-            scope,
-            expiration,
-        })
-
-        httpRequestUtil.post(`/v1/orderly_key`, orderlyKeyBody).then(res => {
-            console.log('-- set orderly key res', res);
-            if (res.success) {
-               window.localStorage.setItem(`SOL:${userAddress}`,orderlyKeyPair.secretKey);
-               setSecretKey(orderlyKeyPair.secretKey);
+        try {
+            if (!setOrderlyKey) {
+               return;
             }
-        })
+            setOrderlyKey().then(res => {
+                console.log('-- res', res)
+
+            })
+
+        } catch (e) {
+            console.log('-- set orderly key error', e);
+
+        }
+
     }
 
     return (
-        <div>
-            <h2>
+      <div className='border border-black rounded-md px-3 py-2'>
+        <h2>
 
-                2. set orderly key
-            </h2>
-            <Button onClick={onSetOrderlyKey}>
-                orderly key
-            </Button>
+          2. set orderly key
+        </h2>
+        <Button onClick={onSetOrderlyKey}>
+          set orderly key
+        </Button>
+        <div className='max-w-[600px] break-all'>
+          <h3>secret key:</h3>
+          <p> {orderlyKeyInfo?.secretKey}</p>
+          <h3>public key:</h3>
+          <p> {orderlyKeyInfo?.publicKey}</p>
         </div>
+      </div>
     )
 }

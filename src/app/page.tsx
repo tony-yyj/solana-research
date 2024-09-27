@@ -43,7 +43,12 @@ export default function Home() {
                             <CheckAccount/>
                             <CheckOrderlyKey/>
                         </div>
+                        <div className='w-full h-[1px] my-3 bg-black'/>
+                        <div className='flex gap-5'>
 
+                            <RegisterAccount/>
+                            <OrderlyKeyButton/>
+                        </div>
 
                     </div>
 

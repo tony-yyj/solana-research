@@ -6,11 +6,13 @@ import {TChain, useChains} from "@/hooks/useChains";
 interface AppContextState {
     brokers: Record<string, string>;
     chains: TChain[];
+    brokerId: string;
 }
 
 export const AppContext = createContext<AppContextState>({
     brokers: {},
     chains: [],
+    brokerId: '',
 })
 
 
@@ -21,14 +23,17 @@ export function AppProvider({children}: {children: ReactNode}) {
         woofi_pro: 'WOOFi Pro',
 
     }
+    const brokerId = 'woofi_pro';
 
 
     const values = useMemo(() => ({
         brokers,
         chains,
+        brokerId,
     }), [
         brokers,
         chains,
+        brokerId,
     ])
 
     useEffect(() => {

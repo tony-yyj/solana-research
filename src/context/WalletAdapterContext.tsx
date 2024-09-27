@@ -4,7 +4,7 @@ import React, {ReactNode, createContext, useContext, useMemo, useState, useEffec
 import useWeb3OnboardWalletAdapter from "@/hooks/useWeb3OnboardWalletAdapter";
 import useSolanaWalletAdapter from "@/hooks/useSolanaWalletAdapter";
 import {Chain, SolanaChainList, WalletAdapter, WalletNamespace} from "@/types/wallet.type";
-import {ETHChain, TChain} from "@/hooks/useChains";
+import { ETHChain, SolanaDevnet, TChain } from "@/hooks/useChains";
 import {useAppContext} from "@/app/AppProvider";
 
 
@@ -51,7 +51,7 @@ export const WalletAdapterContextProvider = ({children}: { children: ReactNode }
     const {chains} = useAppContext();
     const EVMAdapter = useWeb3OnboardWalletAdapter();
     const SOLAdapter = useSolanaWalletAdapter();
-    const [currentChain, setCurrentChain] = useState<Chain>(ETHChain)
+    const [currentChain, setCurrentChain] = useState<Chain>(SolanaDevnet)
 
 
     const [namespace, setNamespace] = useState<'EVM' | 'SOL'>('EVM');

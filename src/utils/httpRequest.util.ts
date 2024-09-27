@@ -1,4 +1,5 @@
 import axios, {AxiosRequestConfig} from "axios";
+// import JSONBig from 'json-bigint';
 // apiBaseUrl: "https://qa-api-evm.orderly.org",
 // apiBaseUrl: "https://dev-api-iap-v2.orderly.org",
 // apiBaseUrl: "https://testnet-api-evm.orderly.org",
@@ -15,6 +16,13 @@ const instance = axios.create({
         'Content-Type': 'application/json;charset=utf-8',
     }
 })
+
+// instance.defaults.transformRequest = [
+//   data => {
+//   JSONBig
+//     return JSON.stringify(data, bigIntReplacer);
+//   }
+// ]
 
 instance.interceptors.response.use(
     (response) => {

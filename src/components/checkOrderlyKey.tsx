@@ -4,9 +4,13 @@ import httpRequestUtil from "@/utils/httpRequest.util";
 import {getAccountId} from "@/utils/common.utilt";
 import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
 import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
+import { useAppContext } from "@/app/AppProvider";
 
 export default function CheckOrderlyKey() {
-    const {userAddress, brokerId, secretKey} = useWalletAdapterContext();
+    const {walletAdapter} = useWalletAdapterContext();
+    const {brokerId} = useAppContext();
+    const userAddress = walletAdapter?.userAddress;
+    const orderlyKeyInfo = walletAdapter?.orderlyKeyInfo;
     const [keyState, setKeyState] = useState<{
         expiration: string;
         key_status: string;
@@ -19,13 +23,7 @@ export default function CheckOrderlyKey() {
         if (!userAddress) {
             return;
         }
-        if (!secretKey) return;
-        console.log('-- secretKey', secretKey);
-
-        const {orderlyKey} = recoverOrderlyKeyPair(secretKey);
-        console.log('--orderlyKey', orderlyKey);
-
-        if (!orderlyKey) return;
+        if (!orderlyKeyInfo) return;
 
         const accountId = getAccountId(userAddress, brokerId)
 
@@ -36,7 +34,7 @@ export default function CheckOrderlyKey() {
             scope: string;
         }>(`/v1/get_orderly_key`, {
             account_id: accountId,
-            orderly_key: orderlyKey,
+            orderly_key:orderlyKeyInfo.publicKey,
         }).then(res => {
             console.log('--- orderlykey state', res)
             if (res.success) {
@@ -51,17 +49,23 @@ export default function CheckOrderlyKey() {
         <div className='border border-black rounded-md px-3 py-2'>
             <h2>check orderlyKey status</h2>
             <Button onClick={onCheckOrderlyKey}>check orderlyKey</Button>
+            <div>
+                <h2>Key status </h2>
+            </div>
             {
-                keyState &&
+                keyState ?
 
                 <div>
                     <h3>orderlyKey info</h3>
-                    <p>expiration: {keyState?.expiration}</p>
+                    <p>expiration: {keyState?.expiration && new Date(keyState?.expiration).toLocaleString()}</p>
                     <p>key status: {keyState?.key_status}</p>
                     <p>orderly_key: {keyState?.orderly_key}</p>
                     <p>scope: {keyState?.scope}</p>
                 </div>
+                    :
+                    'none'
             }
+
         </div>
     )
 

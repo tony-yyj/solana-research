@@ -58,10 +58,10 @@ export default function RegisterAccount() {
 
     }
     return (
-        <div>
-            <h2>1. register account</h2>
-            <Button onClick={onRegister}>Register account</Button>
+      <div className='border border-black rounded-md px-3 py-2'>
+          <h2>1. register account</h2>
+          <Button onClick={onRegister}>Register account</Button>
 
-        </div>
+      </div>
     )
 }
