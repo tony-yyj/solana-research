@@ -4,11 +4,13 @@ import {useWallet} from "@solana/wallet-adapter-react";
 import {getRegistrationDataBody} from "@/utils/signatureBody.util";
 import {signRegisterData} from "@/utils/walletSign.util";
 import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
+import { convertObjectBigIntToString } from "@/utils";
 
 
 export default function RegisterAccount() {
     const {signMessage} = useWallet();
-    const {userAddress, brokerId, chainId} =useWalletAdapterContext();
+    const {brokerId, chainId, walletAdapter} =useWalletAdapterContext();
+    const userAddress = walletAdapter?.userAddress;
 
     const getRegistrationNonce = async () => {
         const res = await httpRequestUtil.get<{ registration_nonce: number }>(`/v1/registration_nonce`);
@@ -47,7 +49,7 @@ export default function RegisterAccount() {
             });
 
             console.log('-- accountRegistrationBody', accountRegistrationBody)
-            httpRequestUtil.post(`/v1/register_account`, accountRegistrationBody).then(res => {
+            httpRequestUtil.post(`/v1/register_account`, convertObjectBigIntToString(accountRegistrationBody)).then(res => {
                 console.log('-- register account res', res);
             })
 

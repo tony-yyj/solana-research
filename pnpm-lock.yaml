@@ -59,6 +59,9 @@ importers:
       bignumber.js:
         specifier: 9.1.2
         version: 9.1.2
+      bip39:
+        specifier: 3.1.0
+        version: 3.1.0
       ethereum-cryptography:
         specifier: 2.2.1
         version: 2.2.1

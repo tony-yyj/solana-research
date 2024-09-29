@@ -18,25 +18,24 @@ interface BalanceResponseInterface {
 }
 
 export default function UserBalance() {
-    const {userAddress, brokerId} = useWalletAdapterContext();
+    const {walletAdapter} = useWalletAdapterContext();
     const [usdcBalance, setUsdcBalance] = useState<number>(0);
+    const userAddress = walletAdapter?.userAddress;
+    const accountId = walletAdapter?.accountId;
+    const orderlyKeyInfo = walletAdapter?.orderlyKeyInfo;
 
     const onGetUserBalance = () => {
 
-        if (!userAddress) return;
+        if (!userAddress ||  !orderlyKeyInfo || !accountId) return;
 
-        const secretKey = window.localStorage.getItem(`SOL:${userAddress}`);
-        if (!secretKey) return;
-        console.log('-- secretKey', secretKey);
 
-        const {keyPair} = recoverOrderlyKeyPair(secretKey);
+        const {keyPair} = recoverOrderlyKeyPair(orderlyKeyInfo.secretKey);
         if (!keyPair) return;
 
         const headers = signatureByOrderlyKey({
             url: '/v1/client/holding',
             method: 'GET',
-            brokerId,
-            userAddress,
+            accountId,
             keyPair,
         })
         console.log('-- headers', headers, JSON.stringify(headers));

@@ -1,5 +1,4 @@
 import nacl from "tweetnacl";
-import {getAccountId} from "@/utils/common.utilt";
 import {Keypair} from "@solana/web3.js";
 
 export function signatureByOrderlyKey(
@@ -7,15 +6,13 @@ export function signatureByOrderlyKey(
         url,
         params,
         method,
-        brokerId,
-        userAddress,
+      accountId,
         keyPair,
     }: {
         url: string;
         params?: object;
         method: 'POST' | 'GET' | 'PUT' | 'DELETE';
-        brokerId: string;
-        userAddress: string;
+        accountId: string,
         keyPair: Keypair;
     }
 ) {
@@ -37,9 +34,8 @@ export function signatureByOrderlyKey(
     const signatureBase64 = Buffer.from(signature).toString('base64');
 
     const orderlyKey = 'ed25519:' + keyPair.publicKey.toBase58();
-    const orderlyAccountId = getAccountId(userAddress, brokerId);
     const headers = {
-        'orderly-account-id': orderlyAccountId,
+        'orderly-account-id':accountId,
         'orderly-key': orderlyKey,
         'orderly-timestamp': timestamp.toString(),
         // 'orderly-signature': base64url(signatureBase64),

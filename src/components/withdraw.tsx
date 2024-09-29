@@ -8,23 +8,27 @@ import {useWallet} from "@solana/wallet-adapter-react";
 import {getWithdrawBody} from "@/utils/signatureBody.util";
 import {useState} from "react";
 import BigNumber from "bignumber.js";
+import { convertObjectBigIntToString } from "@/utils";
 
 export default function Withdraw() {
-    const {userAddress, brokerId,chainId,secretKey} = useWalletAdapterContext();
-    const [amount, setAmount] = useState(10);
+    const {walletAdapter, brokerId,chainId,} = useWalletAdapterContext();
+    const userAddress = walletAdapter?.userAddress;
+    const [amount, setAmount] = useState(100);
     const {signMessage} = useWallet();
+    const orderlyKeyInfo = walletAdapter?.orderlyKeyInfo;
+    const accountId = walletAdapter?.accountId;
     const onWithdraw = async () => {
-        if (!signMessage) return;
-        if (!userAddress || !secretKey) return;
 
-        const {keyPair} = recoverOrderlyKeyPair(secretKey);
+        if (!signMessage || !accountId) return;
+        if (!userAddress || !orderlyKeyInfo) return;
+
+        const {keyPair} = recoverOrderlyKeyPair(orderlyKeyInfo.secretKey);
         if (!keyPair) return;
 
         const headers = signatureByOrderlyKey({
             url: '/v1/withdraw_nonce',
             method: 'GET',
-            brokerId,
-            userAddress,
+            accountId,
             keyPair,
         })
 
@@ -63,13 +67,12 @@ export default function Withdraw() {
         const withdrawHeaders = signatureByOrderlyKey({
             url: '/v1/withdraw_request',
             method: 'POST',
-            params: withdrawBody,
-            brokerId,
+            params: convertObjectBigIntToString(withdrawBody),
             keyPair,
-            userAddress,
+            accountId,
         })
 
-        const withdrawRes = await httpRequestUtil.post(`/v1/withdraw_request`, withdrawBody, {headers: withdrawHeaders})
+        const withdrawRes = await httpRequestUtil.post(`/v1/withdraw_request`, convertObjectBigIntToString(withdrawBody), {headers: convertObjectBigIntToString(withdrawHeaders)})
 
         console.log('-- withdraw res', withdrawRes);
 

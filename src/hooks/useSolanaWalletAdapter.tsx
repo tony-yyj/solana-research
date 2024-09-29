@@ -154,6 +154,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
         connection,
       });
     const usdc = DEV_USDC_ACCOUNT;
+    console.log('-- user public key', publicKey.toBase58());
     const userUSDCAccount = getUSDCAccounts(usdc,publicKey);
     console.log('-- use usdc account', userUSDCAccount.toBase58());
     const vaultAuthorityPda = getVaultAuthorityPda(SOLANA_VALUT_ADDRESS)
@@ -412,7 +413,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
     const tx = new VersionedTransaction(msg);
 
-    const signed =anchorWallet?.signTransaction(tx);
+    const signed = await anchorWallet?.signTransaction(tx);
     console.log('signed', signed);
     connection.sendTransaction(tx).then(res => {
       console.log('-- res', res);
@@ -428,6 +429,14 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
 
   }, [publicKey, provider, anchorWallet, connection])
+
+  const accountId = useMemo(() => {
+    if (!publicKey) {
+     return undefined;
+    }
+    return getSolAccountId(publicKey, brokerId);
+
+  }, [publicKey, brokerId]);
 
   useEffect(() => {
     if (!userAddress) {
@@ -491,6 +500,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     setOrderlyKey,
     orderlyKeyInfo,
     deposit,
+    accountId,
   };
 
 }

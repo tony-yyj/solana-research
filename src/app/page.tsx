@@ -1,5 +1,5 @@
 "use client";
-import WalletBalance from "@/app/walletBalance";
+import WalletBalance from "@/components/walletBalance";
 import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import OrderlyKeyButton from "@/components/OrderlyKeyButton";
 import RegisterAccount from "@/components/registerAccount";
@@ -15,6 +15,7 @@ import ChainList from "@/components/ChainList";
 import { WalletAdapterContextProvider } from "@/context/WalletAdapterContext";
 import InitSolana from "@/context/initSolana";
 import Deposit from "@/components/deposit";
+import WalletKey from "@/components/walletKey";
 
 export default function Home() {
   return (
@@ -37,6 +38,7 @@ export default function Home() {
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
             <div>
+              <WalletKey/>
               <WalletBalance />
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
@@ -52,9 +54,14 @@ export default function Home() {
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
             <div className="flex gap-5">
-              <WalletBalance/>
-              <Deposit/>
+              <WalletBalance />
+              <Deposit />
 
+            </div>
+            <div className="w-full h-[1px] my-3 bg-black" />
+            <div className="flex gap-5">
+              <UserBalance/>
+              <Withdraw/>
             </div>
           </div>
 

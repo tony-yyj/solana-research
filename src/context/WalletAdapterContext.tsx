@@ -60,7 +60,7 @@ export const WalletAdapterContextProvider = ({children}: { children: ReactNode }
 
     const [secretKey, setSecretKey] = useState<string | undefined>();
     const chainId = useMemo(() => {
-        return BigInt(902902902);
+        return BigInt(901901901);
     }, [])
     const brokerId = useMemo(() => {
         return 'woofi_pro';

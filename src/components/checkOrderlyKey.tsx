@@ -1,7 +1,7 @@
 import {Button} from "@/components/base/button";
 import { useState} from "react";
 import httpRequestUtil from "@/utils/httpRequest.util";
-import {getAccountId} from "@/utils/common.utilt";
+import { getAccountId, getSolAccountId } from "@/utils/common.utilt";
 import {recoverOrderlyKeyPair} from "@/utils/orderlyKey.util";
 import {useWalletAdapterContext} from "@/context/WalletAdapterContext";
 import { useAppContext } from "@/app/AppProvider";
@@ -10,6 +10,7 @@ export default function CheckOrderlyKey() {
     const {walletAdapter} = useWalletAdapterContext();
     const {brokerId} = useAppContext();
     const userAddress = walletAdapter?.userAddress;
+    const accountId = walletAdapter?.accountId;
     const orderlyKeyInfo = walletAdapter?.orderlyKeyInfo;
     const [keyState, setKeyState] = useState<{
         expiration: string;
@@ -19,13 +20,12 @@ export default function CheckOrderlyKey() {
     } | undefined>();
 
 
+
     const onCheckOrderlyKey = () => {
-        if (!userAddress) {
+        if (!userAddress || !accountId) {
             return;
         }
         if (!orderlyKeyInfo) return;
-
-        const accountId = getAccountId(userAddress, brokerId)
 
         httpRequestUtil.get<{
             expiration: string;
@@ -35,6 +35,7 @@ export default function CheckOrderlyKey() {
         }>(`/v1/get_orderly_key`, {
             account_id: accountId,
             orderly_key:orderlyKeyInfo.publicKey,
+            chain_type: walletAdapter.namespace,
         }).then(res => {
             console.log('--- orderlykey state', res)
             if (res.success) {

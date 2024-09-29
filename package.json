@@ -26,6 +26,7 @@
     "@web3-onboard/walletconnect": "2.6.1",
     "axios": "1.7.7",
     "bignumber.js": "9.1.2",
+    "bip39": "3.1.0",
     "ethereum-cryptography": "2.2.1",
     "ethers": "6.13.2",
     "next": "14.2.9",
