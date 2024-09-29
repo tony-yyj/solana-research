@@ -17,7 +17,7 @@ import {
   PEER_SEED, PRICE_FEED_SEED, SEND_CONFIG_SEED,
   SEND_LIBRARY_CONFIG_SEED, ULN_SEED
 } from "@layerzerolabs/lz-solana-sdk-v2";
-import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider} from "@coral-xyz/anchor";
 
 export const getUSDCAccounts = (usdc: PublicKey, owner: PublicKey): PublicKey => {
   const usdcTokenAccount = getAssociatedTokenAddressSync(
@@ -35,18 +35,7 @@ export function getVaultAuthorityPda(VAULT_PROGRAM_ID: PublicKey): PublicKey {
   )[0];
 }
 
-function getPDA(programId: PublicKey, seed: string, hash?: string): PublicKey {
-  const seedArr = [Buffer.from(seed, "utf8")];
 
-  if (hash) {
-    const targetHash = Array.from(Buffer.from(hash.slice(2), "hex"));
-    seedArr.push(Buffer.from(targetHash));
-  }
-  return PublicKey.findProgramAddressSync(
-    seedArr,
-    programId
-  )[0];
-}
 
 export function getBrokerPDA(programId: PublicKey, brokerHash: string): PublicKey {
   const hash = Array.from(Buffer.from( brokerHash.slice(2), "hex"));
@@ -97,6 +86,14 @@ export function getEndorcedOptionsPda(OAPP_PROGRAM_ID: PublicKey, oappConfigPda:
     OAPP_PROGRAM_ID
   )[0];
 }
+
+export function getSendLibPda(): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from(MESSAGE_LIB_SEED, "utf8")],
+    SEND_LIB_PROGRAM_ID
+  )[0];
+}
+
 
 export function getSendLibConfigPda(oappConfigPda: PublicKey, dstEid: number): PublicKey {
   const bufferDstEid = Buffer.alloc(4);
