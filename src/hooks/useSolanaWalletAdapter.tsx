@@ -1,7 +1,7 @@
 'use client'
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnchorWallet, useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { encodeBase58 } from "ethers";
 import { WalletAdapter } from "@/types/wallet.type";
 import { generateOrderlyKey, recoverOrderlyKeyPair } from "@/utils/orderlyKey.util";
@@ -11,11 +11,12 @@ import httpRequestUtil from "@/utils/httpRequest.util";
 import { useAppContext } from "@/app/AppProvider";
 import { convertObjectBigIntToString } from "@/utils";
 import {
+  DEV_OAPP_PROGRAM_ID,
   DEV_USDC_ACCOUNT,
   DST_EID, DVN_PROGRAM_ID,
   ENDPOINT_PROGRAM_ID, EXECUTOR_PROGRAM_ID,
-  OAPP_PROGRAM_ID, PEER_ADDRESS, PRICE_FEED_PROGRAM_ID, SEND_LIB_PROGRAM_ID,
-  SOLANA_VALUT_ADDRESS, TREASURY_PROGRAM_ID
+  PEER_ADDRESS, PRICE_FEED_PROGRAM_ID, SEND_LIB_PROGRAM_ID,
+  TREASURY_PROGRAM_ID
 } from "@/contract/solana/constant";
 import {
   getBrokerPDA, getDefaultSendConfigPda,
@@ -35,14 +36,10 @@ import { getHash, getSolAccountId } from "@/utils/common.utilt";
 import { SolanaVault, IDL as VaultIDL } from "@/contract/solana/idl/solana_vault";
 import {
   ComputeBudgetProgram,
-  Connection, sendAndConfirmTransaction,
   SystemProgram,
-  Transaction,
-  sendAndConfirmRawTransaction,
-  TransactionInstruction,
-  TransactionMessage, VersionedTransaction, Keypair
+  TransactionMessage, VersionedTransaction,
 } from "@solana/web3.js";
-import { AnchorProvider, BN, Idl, Program, setProvider } from "@coral-xyz/anchor";
+import {BN, Program,} from "@coral-xyz/anchor";
 import { useAnchorProvider } from "@/hooks/useAnchorProvider";
 
 export default function useSolanaWalletAdapter(): WalletAdapter {
@@ -58,8 +55,8 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     disconnect: solanaDisconnect,
     wallet,
     signMessage,
-    sendTransaction,
     publicKey,
+    sendTransaction,
   } = useWallet();
   const connectRef = useRef<boolean>(false);
   // console.log("-- connecting", {
@@ -148,16 +145,18 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       return;
     }
 
+    const appProgramId = DEV_OAPP_PROGRAM_ID;
     const program = new Program<SolanaVault>(VaultIDL,
-      OAPP_PROGRAM_ID,
+      DEV_OAPP_PROGRAM_ID,
       {
         connection,
       });
     const usdc = DEV_USDC_ACCOUNT;
     console.log('-- user public key', publicKey.toBase58());
     const userUSDCAccount = getUSDCAccounts(usdc,publicKey);
+    console.log('-- usdc address', usdc.toBase58());
     console.log('-- use usdc account', userUSDCAccount.toBase58());
-    const vaultAuthorityPda = getVaultAuthorityPda(SOLANA_VALUT_ADDRESS)
+    const vaultAuthorityPda = getVaultAuthorityPda(appProgramId)
     console.log('-- vault authority pad', vaultAuthorityPda.toBase58());
     const vaultUSDCAccount = getUSDCAccounts(usdc, vaultAuthorityPda)
     console.log('-- vault usdc account',vaultUSDCAccount.toBase58());
@@ -183,12 +182,12 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     });
 
 
-    const allowedBrokerPDA = getBrokerPDA(OAPP_PROGRAM_ID, brokerHash);
-    const allowedTokenPDA = getTokenPDA(OAPP_PROGRAM_ID,tokenHash);
-    const oappConfigPDA = getOAppConfigPda(OAPP_PROGRAM_ID);
-    // const lzPDA = getLzReceiveTypesPda(OAPP_PROGRAM_ID, oappConfigPDA);
-    const peerPDA = getPeerPda(OAPP_PROGRAM_ID, oappConfigPDA, DST_EID);
-    const endorcedPDA = getEndorcedOptionsPda(OAPP_PROGRAM_ID, oappConfigPDA, DST_EID);
+    const allowedBrokerPDA = getBrokerPDA(appProgramId, brokerHash);
+    const allowedTokenPDA = getTokenPDA(appProgramId,tokenHash);
+    const oappConfigPDA = getOAppConfigPda(appProgramId);
+    // const lzPDA = getLzReceiveTypesPda(appProgramId, oappConfigPDA);
+    const peerPDA = getPeerPda(appProgramId, oappConfigPDA, DST_EID);
+    const endorcedPDA = getEndorcedOptionsPda(appProgramId, oappConfigPDA, DST_EID);
     const sendLibPDA = getSendLibConfigPda(oappConfigPDA, DST_EID);
     const defaultSendLibPDA = getDefaultSendLibConfigPda(DST_EID);
     const sendLibInfoPDA = getSendLibInfoPda(sendLibPDA);
@@ -387,7 +386,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       }
     ]).instruction();
 
-    const lookupTableAddress = getLookupTableAddress(OAPP_PROGRAM_ID);
+    const lookupTableAddress = getLookupTableAddress(appProgramId);
     const lookupTableAccount = await getLookupTableAccount(provider, lookupTableAddress);
     if (!lookupTableAccount) {
       console.log('-- lookup table account error');
@@ -396,6 +395,8 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
 
     const ixAddComputeBudget = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
+
+    console.log('-- idx', ixDepositEntry, ixAddComputeBudget);
     const msg = new TransactionMessage({
       payerKey: publicKey,
       recentBlockhash: (await provider.connection.getLatestBlockhash()).blockhash,
@@ -413,11 +414,13 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
     const tx = new VersionedTransaction(msg);
 
+
     const signed = await anchorWallet?.signTransaction(tx);
     console.log('signed', signed);
     connection.sendTransaction(tx).then(res => {
       console.log('-- res', res);
     });
+
 
     // console.log('-- tx', tx);
     // tx.sign([])

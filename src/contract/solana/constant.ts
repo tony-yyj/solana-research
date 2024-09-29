@@ -7,8 +7,6 @@ export const MAIN_USDC_ACCOUNT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4w
 export const ENDPOINT_PROGRAM_ID = new PublicKey("76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6");
 export const SEND_LIB_PROGRAM_ID = new PublicKey("7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH");
 // from solana_valut.json metadata.address
-export const SOLANA_VALUT_ADDRESS = new PublicKey('5zBjLor7vEraAt4zp2H82sy9MSqFoDnNa1Lx6EYKTYRZ');
-export const OAPP_PROGRAM_ID = new PublicKey('5zBjLor7vEraAt4zp2H82sy9MSqFoDnNa1Lx6EYKTYRZ');
 export const EXECUTOR_PROGRAM_ID = new PublicKey("6doghB248px58JSSwG4qejQ46kFMW4AMj7vzJnWZHNZn");
 export const PRICE_FEED_PROGRAM_ID = new PublicKey("8ahPGPjEbpgGaZx2NV1iG5Shj7TDwvsjkEDcGWjt94TP");
 export const RECEIVE_LIB_PROGRAM_ID = SEND_LIB_PROGRAM_ID;
