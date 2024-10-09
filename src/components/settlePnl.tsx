@@ -6,6 +6,7 @@ import {signatureByOrderlyKey} from "@/utils/signatureByOrderlyKey.util";
 import {signSettlePnlData} from "@/utils/walletSign.util";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {getSettlePnlDataBody} from "@/utils/signatureBody.util";
+import { Connection } from "@solana/web3.js";
 
 export default function SettlePnl(){
     const {userAddress, secretKey, brokerId, chainId} = useWalletAdapterContext();

@@ -36,19 +36,16 @@ import { getHash, getSolAccountId } from "@/utils/common.utilt";
 import { SolanaVault, IDL as VaultIDL } from "@/contract/solana/idl/solana_vault";
 import {
   clusterApiUrl,
-  ComputeBudgetProgram, Connection, sendAndConfirmTransaction,
+  ComputeBudgetProgram, Connection,
   SystemProgram,
-  TransactionMessage, VersionedTransaction
+  TransactionMessage, VersionedTransaction,
 } from "@solana/web3.js";
 import {BN, Program} from "@coral-xyz/anchor";
 import { useAnchorProvider } from "@/hooks/useAnchorProvider";
-import { sendMessage } from "@trezor/connect-web/lib/webextension/extensionPermissions";
 
 export default function useSolanaWalletAdapter(): WalletAdapter {
   const [orderlyKeyInfo, setOrderlyKeyInfo] = useState<{ secretKey: string, publicKey: string } | undefined>();
   const { brokerId } = useAppContext();
-  // const {connection} = useConnection();
-  const anchorWallet = useAnchorWallet();
   const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
   const { setVisible, visible } = useWalletModal();
   const {
@@ -60,13 +57,13 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     publicKey,
     signTransaction,
     sendTransaction,
-    signAllTransactions,
   } = useWallet();
   const connectRef = useRef<boolean>(false);
   // console.log("-- connecting", {
   //   connecting, connected, wallet
   // });
   const provider = useAnchorProvider();
+
 
   const connect = useCallback(() => {
     return new Promise((resolve) => {
@@ -422,11 +419,23 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     }).compileToV0Message([lookupTableAccount]);
 
     const tx = new VersionedTransaction(msg);
+    const r = await connection.simulateTransaction(tx, {
+      commitment: 'finalized',
+      replaceRecentBlockhash: true,
+    });
+    console.log('--r', r);
+    console.log('-- tx', tx);
+
     // will sign and send
+    // if (!signTransaction) {
+    //   return;
+    // }
+    // const r = await signTransaction(tx);
+    // console.log('-- r', r);
     const res = await sendTransaction(tx, connection)
     console.log('res', res);
-
-  }, [publicKey, provider, connection, sendTransaction,])
+    //
+  }, [publicKey, provider, connection, sendTransaction, signTransaction])
 
   const accountId = useMemo(() => {
     if (!publicKey) {
@@ -434,7 +443,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     }
     return getSolAccountId(publicKey, brokerId);
 
-  }, [publicKey, brokerId]);
+  }, [publicKey, brokerId, signTransaction]);
 
   useEffect(() => {
     if (!userAddress) {
