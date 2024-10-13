@@ -485,6 +485,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
 
   useEffect(() => {
+    console.log('-- wallet', wallet);
     if (connectRef.current && !visible) {
       connectSolanaWallet().then(res => {
         console.log("--  solana connect res", res);

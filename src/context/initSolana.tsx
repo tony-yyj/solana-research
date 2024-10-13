@@ -20,11 +20,11 @@ export default function InitSolana({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => {
     return [
-      new PhantomWalletAdapter(),
-      // new WalletConnectWalletAdapter(),
-      new SolflareWalletAdapter(),
-      new GlowWalletAdapter(),
-      new CoinbaseWalletAdapter()
+      // new PhantomWalletAdapter(),
+      // // new WalletConnectWalletAdapter(),
+      // new SolflareWalletAdapter(),
+      // new GlowWalletAdapter(),
+      // new CoinbaseWalletAdapter()
     ];
   }, []);
 

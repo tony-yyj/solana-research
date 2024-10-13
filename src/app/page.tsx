@@ -38,7 +38,7 @@ export default function Home() {
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
             <div>
-              <WalletKey/>
+              <WalletKey />
               <WalletBalance />
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
@@ -60,8 +60,9 @@ export default function Home() {
             </div>
             <div className="w-full h-[1px] my-3 bg-black" />
             <div className="flex gap-5">
-              <UserBalance/>
-              <Withdraw/>
+              <UserBalance />
+              <Withdraw />
+              <SettlePnl />
             </div>
           </div>
 
