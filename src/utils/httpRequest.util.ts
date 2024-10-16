@@ -9,8 +9,8 @@ interface IResponse<T> {
     data: T
 }
 const instance = axios.create({
-    baseURL: "https://dev-api-v2.orderly.org",
-    // baseURL: "https://qa-api-evm.orderly.org",
+    // baseURL: "https://dev-api-v2.orderly.org",
+    baseURL: "https://qa-api-evm.orderly.org",
     headers: {
         'Access-Control-Allow-Origin': '*',
         Accept: 'application/json',

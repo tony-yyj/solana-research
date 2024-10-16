@@ -1,5 +1,5 @@
 'use client';
-import {clusterApiUrl, Connection,LAMPORTS_PER_SOL} from "@solana/web3.js";
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import {useEffect, useState} from "react";
 import {useWallet} from "@solana/wallet-adapter-react";
 import BigNumber from "bignumber.js";
@@ -7,15 +7,22 @@ import { Button } from "@/components/base/button";
 import { getUSDCAccounts } from "@/contract/solana/solana.util";
 import { DEV_USDC_ACCOUNT } from "@/contract/solana/constant";
 import { getAccount } from "@solana/spl-token";
+import { useWalletAdapterContext } from "@/context/WalletAdapterContext";
 
 export default function WalletBalance() {
     const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
     const [walletBalance, setWalletBalance] = useState(0);
     const [usdcBalance, setUsdcBalance] = useState(0);
     const {publicKey} = useWallet();
+    const {walletAdapter} = useWalletAdapterContext();
+    const userAddress = walletAdapter?.userAddress;
 
     const onGetUsdcAmount = async () => {
-        if (!publicKey) return;
+        if (!publicKey || !userAddress) return;
+        console.log('-- useraddress', userAddress);
+        console.log('-- publickey', publicKey);
+        console.log('--- user address publicKey',new PublicKey(userAddress));
+
         const usdc = DEV_USDC_ACCOUNT;
         const userUSDCAccount = getUSDCAccounts(usdc,publicKey);
         const usdcamount = await getAccount(connection,userUSDCAccount, 'confirmed');

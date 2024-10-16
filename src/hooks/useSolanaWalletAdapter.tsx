@@ -15,7 +15,7 @@ import {
   DEV_USDC_ACCOUNT,
   DST_EID, DVN_PROGRAM_ID,
   ENDPOINT_PROGRAM_ID, EXECUTOR_PROGRAM_ID,
-  PEER_ADDRESS, PRICE_FEED_PROGRAM_ID, SEND_LIB_PROGRAM_ID,
+  PEER_ADDRESS, PRICE_FEED_PROGRAM_ID, QA_OAPP_PROGRAM_ID, SEND_LIB_PROGRAM_ID,
   TREASURY_PROGRAM_ID
 } from "@/contract/solana/constant";
 import {
@@ -146,7 +146,8 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       return;
     }
 
-    const appProgramId =DEV_OAPP_PROGRAM_ID;
+    const appProgramId =QA_OAPP_PROGRAM_ID;
+    // const appProgramId =DEV_OAPP_PROGRAM_ID;
     const program = new Program<SolanaVault>(VaultIDL,
       appProgramId,
       {
@@ -233,6 +234,8 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       vaultDepositParams,
       sendParam,
     });
+
+
     const ixDepositEntry = await program.methods.deposit(vaultDepositParams, sendParam).accounts({
       userTokenAccount: userUSDCAccount,
       vaultAuthority: vaultAuthorityPda,
@@ -405,6 +408,10 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       console.log('-- lookup table account error');
      return;
     }
+    console.log('-- lookup table address',{
+      lookupTableAddress: lookupTableAddress.toBase58(),
+      lookupTableAccount,
+    });
 
 
     const ixAddComputeBudget = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
