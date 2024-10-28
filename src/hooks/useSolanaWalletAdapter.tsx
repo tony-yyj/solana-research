@@ -19,16 +19,28 @@ import {
   TREASURY_PROGRAM_ID
 } from "@/contract/solana/constant";
 import {
-  getBrokerPDA, getDefaultSendConfigPda,
-  getDefaultSendLibConfigPda, getDvnConfigPda,
+  getBrokerPDA,
+  getDefaultSendConfigPda,
+  getDefaultSendLibConfigPda,
+  getDvnConfigPda,
   getEndorcedOptionsPda,
-  getEndpointSettingPda, getEventAuthorityPda, getExecutorConfigPda, getLookupTableAccount, getLookupTableAddress,
+  getEndpointSettingPda,
+  getEventAuthorityPda,
+  getExecutorConfigPda,
+  getLookupTableAccount,
+  getLookupTableAddress, getMessageLibInfoPda,
+  getMessageLibPda,
   getNoncePda,
   getOAppConfigPda,
-  getPeerPda, getPriceFeedPda, getSendConfigPda,
+  getPeerPda,
+  getPriceFeedPda,
+  getSendConfigPda,
   getSendLibConfigPda,
-  getSendLibInfoPda, getSendLibPda,
-  getTokenPDA, getUlnEventAuthorityPda, getUlnSettingPda,
+  getSendLibInfoPda,
+  getSendLibPda,
+  getTokenPDA,
+  getUlnEventAuthorityPda,
+  getUlnSettingPda,
   getUSDCAccounts,
   getVaultAuthorityPda
 } from "@/contract/solana/solana.util";
@@ -36,12 +48,30 @@ import { getHash, getSolAccountId } from "@/utils/common.utilt";
 import { SolanaVault, IDL as VaultIDL } from "@/contract/solana/idl/solana_vault";
 import {
   clusterApiUrl,
-  ComputeBudgetProgram, Connection,
+  ComputeBudgetProgram, Connection, Keypair,
   SystemProgram,
-  TransactionMessage, VersionedTransaction,
+  TransactionMessage, VersionedTransaction
 } from "@solana/web3.js";
-import {BN, Program} from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { useAnchorProvider } from "@/hooks/useAnchorProvider";
+
+enum MsgType {
+  Deposit = 0,
+  // Add other message types if needed
+}
+
+interface LzMessage {
+  msgType: MsgType;
+  payload: Buffer;
+}
+
+function encodeLzMessage(message: LzMessage): Buffer {
+  const msgTypeBuffer = Buffer.alloc(1);
+  msgTypeBuffer.writeUInt8(message.msgType);
+  return Buffer.concat([msgTypeBuffer, message.payload]);
+}
+
+
 
 export default function useSolanaWalletAdapter(): WalletAdapter {
   const [orderlyKeyInfo, setOrderlyKeyInfo] = useState<{ secretKey: string, publicKey: string } | undefined>();
@@ -52,7 +82,6 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     connect: connectSolanaWallet,
     connected,
     disconnect: solanaDisconnect,
-    wallet,
     signMessage,
     publicKey,
     signTransaction,
@@ -62,7 +91,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
   // console.log("-- connecting", {
   //   connecting, connected, wallet
   // });
-  const provider = useAnchorProvider();
+  // const provider = useAnchorProvider();
 
 
   const connect = useCallback(() => {
@@ -75,6 +104,8 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
     });
   }, [setVisible, connected]);
+  const wallet =useAnchorWallet();
+
 
   const userAddress = useMemo(() => {
     if (!publicKey) {
@@ -142,17 +173,22 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
   }, [userAddress, signMessage, brokerId]);
 
   const deposit = useCallback(async () => {
-    if (!publicKey || !provider || !sendTransaction) {
+    if (!publicKey || !wallet|| !sendTransaction) {
       return;
     }
 
+    const provider = new AnchorProvider(connection, wallet, {
+      skipPreflight: true,
+      preflightCommitment: 'processed',
+      commitment: 'processed',
+    });
     const appProgramId =QA_OAPP_PROGRAM_ID;
     // const appProgramId =DEV_OAPP_PROGRAM_ID;
     const program = new Program<SolanaVault>(VaultIDL,
       appProgramId,
-      {
-        connection,
-      });
+      provider,
+
+      );
     console.log('-- app progroam id', appProgramId.toBase58());
     const usdc = DEV_USDC_ACCOUNT;
     console.log('-- user public key', publicKey.toBase58());
@@ -207,13 +243,10 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     const executorConfigPDA= getExecutorConfigPda();
     const priceFeedPDA = getPriceFeedPda();
     const dvnConfigPDA = getDvnConfigPda();
-    console.log('-- ttt', {
-      appProgramId: appProgramId.toBase58(),
-      oappConfigPDA: oappConfigPDA.toBase58(),
-      sendLibInfoPDA: sendLibInfoPDA.toBase58(),
-      sendLibConfigPDA: sendLibConfigPDA.toBase58(),
 
-    });
+    const messageLibPDA = getMessageLibPda(SEND_LIB_PROGRAM_ID);
+    const messageLibInfoPDA = getMessageLibInfoPda(messageLibPDA)
+
 
 
     const vaultDepositParams = {
@@ -223,13 +256,144 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       userAddress: Array.from(publicKey.toBuffer()),
       tokenAmount: new BN(10_000_000),
     };
+    const depositMsg = Buffer.alloc(32*7); // Adjust size as needed
 
+
+    const lzMessage = encodeLzMessage({
+      msgType: MsgType.Deposit,
+      payload: depositMsg,
+    });
+
+    const quoteParams = {
+      dstEid: DST_EID,
+      to: Array.from(PEER_ADDRESS),
+      options: Buffer.from([]),
+      message: lzMessage,
+      payInLzToken: false
+    };
+
+    // deposit fee
+    const quoteFee= await program.methods.oappQuote(quoteParams).accounts({
+      oappConfig:oappConfigPDA,
+      peer:peerPDA,
+      enforcedOptions:endorcedPDA,
+
+    })
+      .remainingAccounts([
+    // ENDPOINT solana/programs/programs/uln/src/instructions/endpoint/send.rs
+        {
+          pubkey: ENDPOINT_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: SEND_LIB_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: sendLibConfigPDA, // send_library_config
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: defaultSendLibPDA, // default_send_library_config
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey:messageLibInfoPDA, // send_library_info
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey:endpointSettingPDA, // endpoint settings
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey:noncePDA, // nonce
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey:messageLibPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey:sendConfigPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: defaultSendConfigPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: EXECUTOR_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: executorConfigPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: PRICE_FEED_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: priceFeedPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: DVN_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: dvnConfigPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: PRICE_FEED_PROGRAM_ID,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: priceFeedPDA,
+          isWritable: false,
+          isSigner: false,
+        },
+
+      ])
+      // .view({
+      //   // type Commitment = 'processed' | 'confirmed' | 'finalized' | 'recent' | 'single' | 'singleGossip' | 'root' | 'max';
+      //
+      //   // skipPreflight: true,
+      //   // preflightCommitment: 'processed',
+      // });
+      // .rpc();
+      .instruction();
+    console.log('-- qutoefee', quoteFee);
+    // console.log({
+    //   nativeFee: quoteFee.nativeFee.toString(),
+    //   lzTokenFee: quoteFee.lzTokenFee.toString(),
+    // });
+    // return;
 
     const sendParam = {
       nativeFee: new BN(1_000_000_000),
       lzTokenFee:new BN(0),
 
     }
+
     console.log('--- value params', {
       vaultDepositParams,
       sendParam,
@@ -397,11 +561,6 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
       }
     ]).instruction();
 
-    console.log('-----');
-    ixDepositEntry.keys.map(item => {
-      console.log(item.pubkey.toBase58());
-    })
-    console.log('-----');
     const lookupTableAddress = getLookupTableAddress(appProgramId);
     const lookupTableAccount = await getLookupTableAccount(provider, lookupTableAddress);
     if (!lookupTableAccount) {
@@ -425,9 +584,40 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
 
     }).compileToV0Message([lookupTableAccount]);
 
+    const feeMsg = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: lastBlockHash.blockhash,
+      instructions: [quoteFee],
+
+    }).compileToV0Message([lookupTableAccount]);
+
+    const feeTx = new VersionedTransaction(feeMsg);
+
+    const feeRes = await connection.simulateTransaction(feeTx);
+    console.log('-- fee res ', feeRes);
+    if (feeRes.value?.returnData?.data) {
+      console.log('-- ', feeRes.value.returnData.data[0]);
+    }
+
+    const returnPrefix = `Program return: ${program.programId} `;
+    const returnLogEntry =feeRes.value.logs!.find((log) =>
+      log.startsWith(returnPrefix)
+    );
+    console.log(returnLogEntry);
+
+    if (returnLogEntry) {
+      // Slice out the prefix to get the base64 return data
+      const encodedReturnData = returnLogEntry.slice(returnPrefix.length);
+      console.log(encodedReturnData);
+
+      // Convert the Base64 return data
+      const decodedBuffer = Buffer.from(encodedReturnData, "base64");
+      console.log(decodedBuffer, decodedBuffer[0],decodedBuffer.readBigUInt64LE(0),decodedBuffer.readBigUInt64LE(1));
+    }
+
     const tx = new VersionedTransaction(msg);
     const r = await connection.simulateTransaction(tx, {
-      commitment: 'finalized',
+      commitment: 'confirmed',
       replaceRecentBlockhash: true,
     });
     console.log('--r', r);
@@ -442,7 +632,7 @@ export default function useSolanaWalletAdapter(): WalletAdapter {
     const res = await sendTransaction(tx, connection)
     console.log('res', res);
     //
-  }, [publicKey, provider, connection, sendTransaction, signTransaction])
+  }, [publicKey,, connection, sendTransaction, signTransaction])
 
   const accountId = useMemo(() => {
     if (!publicKey) {

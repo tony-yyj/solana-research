@@ -197,6 +197,20 @@ export function getDvnConfigPda(): PublicKey {
   )[0];
 }
 
+export function getMessageLibPda(programId?: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from(MESSAGE_LIB_SEED, "utf8")],
+    programId ? programId : SEND_LIB_PROGRAM_ID
+  )[0];
+}
+
+export function getMessageLibInfoPda(msgLibPda: PublicKey, programId?: PublicKey): PublicKey {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from(MESSAGE_LIB_SEED, "utf8"), msgLibPda.toBytes()],
+    programId ? programId :ENDPOINT_PROGRAM_ID
+  )[0];
+}
+
 export  function getLookupTableAddress( OAPP_PROGRAM_ID: PublicKey): PublicKey {
   if (OAPP_PROGRAM_ID.toBase58() === DEV_OAPP_PROGRAM_ID.toBase58()) {
     console.log("DEV_LOOKUP_TABLE_ADDRESS: ", DEV_LOOKUP_TABLE_ADDRESS.toBase58());
