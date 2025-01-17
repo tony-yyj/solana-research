@@ -76,6 +76,27 @@ export function SignMessageByLedger() {
 
     console.log("Signed transaction:", signedTransaction);
 
+    // 打印签名后交易的详细结构
+    console.log("Transaction structure after signing:");
+    console.log("Number of instructions:", signedTransaction.instructions.length);
+    signedTransaction.instructions.forEach((instruction, index) => {
+      console.log(`Instruction ${index}:`, {
+        programId: instruction.programId.toBase58(),
+        keys: instruction.keys,
+        data: uint8ArrayToHexString(instruction.data)
+      });
+    });
+
+    // 打印序列化的已签名交易数据
+    const serializedSignedTx = signedTransaction.serialize().toString('hex');
+    console.log("Serialized transaction (after signing):", serializedSignedTx);
+
+    // 获取交易的签名
+    const signature = signedTransaction.signatures[0].signature;
+    if (signature) {
+      console.log("Signature:", uint8ArrayToHexString(signature));
+    }
+
   }
   return (
     <div onClick={onClick}>sign message</div>
