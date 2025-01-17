@@ -85,6 +85,13 @@ export async function initOnBoard() {
             token: "SepoliaETH",
             rpcUrl: "https://ethereum-sepolia.blockpi.network/v1/rpc/public",
         },
+
+        {
+            id: `0x${(1328).toString(16)}`,
+            label: "Sei Testnet",
+            token: "SEI",
+            rpcUrl: "https://evm-rpc-testnet.sei-apis.com",
+        },
     ];
 
     const bitgetWallet = bitgetWalletModule();
@@ -110,7 +117,7 @@ export async function initOnBoard() {
             },
             accountCenter: {
                 desktop: {
-                    enabled: false,
+                    enabled:true,
                 },
                 mobile: {
                     enabled: false,

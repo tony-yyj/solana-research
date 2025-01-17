@@ -3,7 +3,8 @@ import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   CoinbaseWalletAdapter,
-  SolflareWalletAdapter, PhantomWalletAdapter,
+  SolflareWalletAdapter, PhantomWalletAdapter, LedgerWalletAdapter
+
 } from "@solana/wallet-adapter-wallets";
 import {
   WalletModalProvider
@@ -20,7 +21,8 @@ export default function InitSolana({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => {
     return [
-      // new PhantomWalletAdapter(),
+      new PhantomWalletAdapter(),
+      new LedgerWalletAdapter(),
       // // new WalletConnectWalletAdapter(),
       // new SolflareWalletAdapter(),
       // new GlowWalletAdapter(),
