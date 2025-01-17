@@ -16,6 +16,7 @@ import { WalletAdapterContextProvider } from "@/context/WalletAdapterContext";
 import InitSolana from "@/context/initSolana";
 import Deposit from "@/components/deposit";
 import WalletKey from "@/components/walletKey";
+import { SignMessageByLedger } from "@/components/signMessageByLedger";
 
 export default function Home() {
   return (
@@ -30,40 +31,43 @@ export default function Home() {
               <WalletMultiButton />
               <WalletDisconnectButton />
             </div>
-            <div>
-              <ChainList />
+            <div className='px-5 py-3 border'>
+              <SignMessageByLedger/>
             </div>
-            <div>
-              <ConnectWallet />
-            </div>
+            {/*<div>*/}
+            {/*  <ChainList />*/}
+            {/*</div>*/}
+            {/*<div>*/}
+            {/*  <ConnectWallet />*/}
+            {/*</div>*/}
             <div className="w-full h-[1px] my-3 bg-black" />
             <div>
               <WalletKey />
               <WalletBalance />
             </div>
-            <div className="w-full h-[1px] my-3 bg-black" />
-            <div className="flex gap-5">
-              <CheckAccount />
-              <CheckOrderlyKey />
-            </div>
-            <div className="w-full h-[1px] my-3 bg-black" />
-            <div className="flex gap-5">
+            {/*<div className="w-full h-[1px] my-3 bg-black" />*/}
+            {/*<div className="flex gap-5">*/}
+            {/*  <CheckAccount />*/}
+            {/*  <CheckOrderlyKey />*/}
+            {/*</div>*/}
+            {/*<div className="w-full h-[1px] my-3 bg-black" />*/}
+            {/*<div className="flex gap-5">*/}
 
-              <RegisterAccount />
-              <OrderlyKeyButton />
-            </div>
-            <div className="w-full h-[1px] my-3 bg-black" />
-            <div className="flex gap-5">
-              <WalletBalance />
-              <Deposit />
+            {/*  <RegisterAccount />*/}
+            {/*  <OrderlyKeyButton />*/}
+            {/*</div>*/}
+            {/*<div className="w-full h-[1px] my-3 bg-black" />*/}
+            {/*<div className="flex gap-5">*/}
+            {/*  <WalletBalance />*/}
+            {/*  <Deposit />*/}
 
-            </div>
-            <div className="w-full h-[1px] my-3 bg-black" />
-            <div className="flex gap-5">
-              <UserBalance />
-              <Withdraw />
-              <SettlePnl />
-            </div>
+            {/*</div>*/}
+            {/*<div className="w-full h-[1px] my-3 bg-black" />*/}
+            {/*<div className="flex gap-5">*/}
+            {/*  <UserBalance />*/}
+            {/*  <Withdraw />*/}
+            {/*  <SettlePnl />*/}
+            {/*</div>*/}
           </div>
 
         </WalletAdapterContextProvider>
